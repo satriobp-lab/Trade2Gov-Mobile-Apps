@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../home/home_page.dart';
-import '../billing/billing_page.dart';
-import '../callcenter/call_center_page.dart';
-import '../mailbox/mailbox_tab.dart';
-import '../profile/profile_page.dart';
+import '../ui/home/home_page.dart';
+import 'ui/billing/billing_page.dart';
+import 'ui/callcenter/call_center_page.dart';
+import 'ui/mailbox/mailbox_tab.dart';
+import 'ui/profile/profile_page.dart';
 
-import '../information/information_page.dart';
-import '../kurs/kurs_page.dart';
-import '../tracking/tracking_page.dart';
-import '../edec/edec_page.dart';
+import 'ui/information/information_page.dart';
+import 'ui/kurs/kurs_page.dart';
+import 'ui/tracking/tracking_page.dart';
+import 'ui/edec/edec_page.dart';
 
-import '../home/section/home_section.dart';
+import 'ui/home/section/home_section.dart';
 import '../utils/app_colors.dart';
 
 class MainNavigation extends StatefulWidget {
