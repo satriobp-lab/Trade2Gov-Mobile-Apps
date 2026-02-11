@@ -39,6 +39,14 @@ class _HomePageState extends State<HomePage> {
   int _activeMenu = -1;
   int _activeProduct = -1;
 
+  bool _snackbarShown = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _showWelcomeSnackbar();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -597,6 +605,38 @@ class _HomePageState extends State<HomePage> {
       MaterialPageRoute(builder: (_) => const LoginPage()),
           (route) => false,
     );
+  }
+
+  Future<void> _showWelcomeSnackbar() async {
+    if (_snackbarShown) return;
+
+    final storage = SecureStorageService();
+    final name = await storage.getUserName();
+
+    if (!mounted || name == null || name.isEmpty) return;
+
+    _snackbarShown = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Welcome again, $name 👋',
+            style: GoogleFonts.lato(
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: AppColors.customColorRed,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    });
   }
 }
 

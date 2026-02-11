@@ -24,4 +24,21 @@ class ApiService {
       throw Exception(decoded['desc'] ?? 'Login gagal');
     }
   }
+
+  Future<dynamic> postRaw(
+      String endpoint,
+      Map<String, dynamic> body,
+      ) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/$endpoint'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('HTTP ${response.statusCode}');
+    }
+  }
 }

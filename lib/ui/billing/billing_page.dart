@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:trade2gov/data/models/billing_response_model.dart';
+import 'package:trade2gov/data/controllers/billing_controller.dart';
 import '../../utils/app_colors.dart';
 import 'billingdetails/billing_details_page.dart';
 import '../../utils/app_box_decoration.dart';
@@ -14,7 +16,7 @@ class BillingPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
       appBar: AppBar(
-        automaticallyImplyLeading: false, // ⬅️ ini kuncinya
+        automaticallyImplyLeading: false,
         backgroundColor: AppColors.whiteColor,
         elevation: 0,
         centerTitle: true,
@@ -23,7 +25,7 @@ class BillingPage extends StatelessWidget {
           style: GoogleFonts.lato(
             color: AppColors.customColorRed,
             fontWeight: FontWeight.bold,
-            fontSize: width * 0.055, // responsive
+            fontSize: width * 0.055,
           ),
         ),
         bottom: PreferredSize(
@@ -35,16 +37,52 @@ class BillingPage extends StatelessWidget {
           ),
         ),
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-        itemCount: billingData.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 14),
-        itemBuilder: (context, index) {
-          final item = billingData[index];
-          return _BillingCard(
-            title: item['title']!,
-            period: item['period']!,
-            amount: item['amount']!,
+
+      /// 🔥 DATA FROM API
+      body: FutureBuilder(
+        future: BillingController.fetchBilling(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: AppColors.customColorRed,
+              ),
+            );
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Gagal memuat billing',
+                style: GoogleFonts.lato(color: Colors.red),
+              ),
+            );
+          }
+
+          final data = snapshot.data as List<BillingResponseModel>;
+
+          if (data.isEmpty) {
+            return Center(
+              child: Text(
+                'Tidak ada data billing',
+                style: GoogleFonts.lato(),
+              ),
+            );
+          }
+
+          return ListView.separated(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+            itemCount: data.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 14),
+            itemBuilder: (context, index) {
+              final item = data[index];
+
+              return _BillingCard(
+                title: 'Tagihan Terbit',
+                period: item.periodeTagihan.replaceAll('-', ' '),
+                amount: formatRupiah(item.billingTotal),
+              );
+            },
           );
         },
       ),
@@ -52,23 +90,31 @@ class BillingPage extends StatelessWidget {
   }
 }
 
-final List<Map<String, String>> billingData = [
-  {
-    'title': 'Tagihan Terbit',
-    'period': 'December 2025',
-    'amount': 'Rp 13.281.740',
-  },
-  {
-    'title': 'Tagihan Terbit',
-    'period': 'November 2025',
-    'amount': 'Rp 3.281.740',
-  },
-  {
-    'title': 'Tagihan Terbit',
-    'period': 'October 2025',
-    'amount': 'Rp 3.281.740',
-  },
-];
+String formatRupiah(int value) {
+  return 'Rp ${value.toString().replaceAllMapped(
+    RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+        (m) => '${m[1]}.',
+  )}';
+}
+
+
+// final List<Map<String, String>> billingData = [
+//   {
+//     'title': 'Tagihan Terbit',
+//     'period': 'December 2025',
+//     'amount': 'Rp 13.281.740',
+//   },
+//   {
+//     'title': 'Tagihan Terbit',
+//     'period': 'November 2025',
+//     'amount': 'Rp 3.281.740',
+//   },
+//   {
+//     'title': 'Tagihan Terbit',
+//     'period': 'October 2025',
+//     'amount': 'Rp 3.281.740',
+//   },
+// ];
 
 class _BillingCard extends StatelessWidget {
   final String title;

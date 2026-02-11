@@ -53,12 +53,10 @@ class _AppLoaderPageState extends State<AppLoaderPage> {
             // ),
             const SizedBox(height: 25),
             Text(
-              _name.isNotEmpty
-                  ? 'Welcome again, $_name 👋'
-                  : 'Preparing your workspace...',
+              'Preparing your workspace...',
               style: GoogleFonts.lato(
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
                 color: AppColors.customColorRed,
               ),
             ),

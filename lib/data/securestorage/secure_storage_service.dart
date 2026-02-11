@@ -8,6 +8,10 @@ class SecureStorageService {
   static const _keyEmail = 'email';
   static const _keyName = 'name';
 
+  Future<String?> getUserId() async {
+    return await _storage.read(key: _keyUserId);
+  }
+
   Future<void> saveLoginSession({
     required String userId,
     required String userHash,
