@@ -2,14 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_box_decoration.dart';
-import '../../widgets/animated_inverse_button.dart';
+import '../../core/app_cache.dart';
+import '../../data/models/profile_response_model.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  ProfileResponseModel? profile;
+
+  String appVersion = '-';
+
+  @override
+  void initState() {
+    super.initState();
+    profile = AppCache.profile;
+    _loadAppVersion();
+  }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+
+    if (profile == null) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
@@ -23,7 +49,7 @@ class ProfilePage extends StatelessWidget {
           style: GoogleFonts.lato(
             color: AppColors.customColorRed,
             fontWeight: FontWeight.bold,
-            fontSize: width * 0.055, // responsive
+            fontSize: width * 0.055,
           ),
         ),
         bottom: PreferredSize(
@@ -36,31 +62,29 @@ class ProfilePage extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        // Mengurangi padding vertical agar tidak terlalu jauh dari AppBar
         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
         child: Column(
           children: [
-            const SizedBox(height: 5), // Dikurangi dari 50 agar naik ke atas
+            const SizedBox(height: 5),
             Stack(
               clipBehavior: Clip.none,
               alignment: Alignment.topCenter,
               children: [
-                // Kartu Informasi Profil
                 Container(
                   width: double.infinity,
-                  margin: const EdgeInsets.only(top: 55), // Tetap setengah tinggi foto
+                  margin: const EdgeInsets.only(top: 55),
                   decoration: AppBox.primary(),
                   padding: const EdgeInsets.only(
-                    top: 65, // Jarak konten dari foto profil
+                    top: 65,
                     left: 20,
                     right: 20,
                     bottom: 20,
                   ),
                   child: Column(
                     children: [
-                      // Nama & Kontak Utama
+                      /// 🔥 BASIC INFO
                       Text(
-                        'Dasha Taran',
+                        profile?.name ?? '-',
                         style: GoogleFonts.lato(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -69,7 +93,7 @@ class ProfilePage extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'dasha@gmail.com',
+                        profile?.email ?? '-',
                         style: GoogleFonts.lato(
                           fontSize: 14,
                           color: AppColors.customColorRed,
@@ -77,43 +101,61 @@ class ProfilePage extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '0812364829109',
+                        profile?.phone ?? '-',
                         style: GoogleFonts.lato(
                           fontSize: 14,
                           color: AppColors.customColorRed,
                         ),
                       ),
 
-                      // Divider dengan warna customColorRed
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         child: Divider(
                           thickness: 1,
-                          color: AppColors.customColorRed.withOpacity(0.3), // Diubah ke Red
+                          color:
+                          AppColors.customColorRed.withOpacity(0.3),
                         ),
                       ),
 
-                      // Detail Data Perusahaan
-                      _buildProfileInfoRow('Nama Perusahaan', 'Test Ecustoms'),
-                      _buildProfileInfoRow('Npwp', '89384938209423'),
-                      _buildProfileInfoRow('Alamat', 'Jalan Sanaan Dikit V'),
-                      _buildProfileInfoRow('Kode Pos', '45678'),
-                      _buildProfileInfoRow('Bidang Usaha', 'Importir'),
-                      _buildProfileInfoRow('Komoditi', 'Penyewaan. Sewa Guna Usaha, Ketenagakerjaan, Travel Agent. Penunjang Lainnya.'),
-                      _buildProfileInfoRow('Subkomoditi', 'Jasa Reservasi dan Aktivitas Terkait Lainnya.'),
+                      /// 🔥 COMPANY DETAIL
+                      _buildProfileInfoRow(
+                          'Nama Perusahaan',
+                        _toTitleCase(profile?.namaPerusahaan),
+                      ),
+                      _buildProfileInfoRow(
+                          'Npwp',
+                          profile?.npwp ?? '-'),
+                      _buildProfileInfoRow(
+                          'Alamat',
+                        _toTitleCase(profile?.alamat),
+                      ),
+                      _buildProfileInfoRow(
+                          'Kode Pos',
+                          profile?.kodePos ?? '-'),
+                      _buildProfileInfoRow(
+                        'Bidang Usaha',
+                        profile?.bidangUsaha ??
+                            _toTitleCase(profile?.bidangUsaha),
+                      ),
+                      _buildProfileInfoRow(
+                          'Komoditi',
+                        _toTitleCase(profile?.bidangUsahaKomoditi),
+                      ),
+                      _buildProfileInfoRow(
+                          'Subkomoditi',
+                        _toTitleCase(profile?.bidangUsahaSubkomoditi),
+                      ),
 
-
-
-                      // Divider bawah dengan warna customColorRed
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         child: Divider(
                           thickness: 1,
-                          color: AppColors.customColorRed.withOpacity(0.3), // Diubah ke Red
+                          color:
+                          AppColors.customColorRed.withOpacity(0.3),
                         ),
                       ),
 
-                      // Section Version
+                      /// 🔥 VERSION
                       Text(
                         'Version Mobile Apps',
                         style: GoogleFonts.lato(
@@ -130,14 +172,16 @@ class ProfilePage extends StatelessWidget {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: AppColors.customColorRed.withOpacity(0.3),
+                            color: AppColors.customColorRed
+                                .withOpacity(0.3),
                           ),
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          '1.0.0',
+                          appVersion,
                           style: GoogleFonts.roboto(
-                            color: AppColors.customColorRed.withOpacity(0.6),
+                            color: AppColors.customColorRed
+                                .withOpacity(0.6),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -146,7 +190,7 @@ class ProfilePage extends StatelessWidget {
                   ),
                 ),
 
-                // Foto Profil Lingkaran
+                /// 🔥 PROFILE IMAGE
                 Positioned(
                   top: 0,
                   child: Container(
@@ -166,7 +210,8 @@ class ProfilePage extends StatelessWidget {
                         width: 4,
                       ),
                       image: const DecorationImage(
-                        image: AssetImage('assets/images/person-image.png'),
+                        image:
+                        AssetImage('assets/images/person-image.png'),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -180,6 +225,7 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
+  /// 🔥 Helper Row
   Widget _buildProfileInfoRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -204,7 +250,7 @@ class ProfilePage extends StatelessWidget {
                   TextSpan(
                     text: ': ',
                     style: GoogleFonts.roboto(
-                      fontWeight: FontWeight.bold, // Membuat titik dua menjadi bold
+                      fontWeight: FontWeight.bold,
                       fontSize: 13,
                       color: AppColors.customColorGray,
                     ),
@@ -212,9 +258,10 @@ class ProfilePage extends StatelessWidget {
                   TextSpan(
                     text: value,
                     style: GoogleFonts.roboto(
-                      fontWeight: FontWeight.normal, // Nilai tetap normal
+                      fontWeight: FontWeight.normal,
                       fontSize: 13,
-                      color: AppColors.customColorGray.withOpacity(0.8),
+                      color:
+                      AppColors.customColorGray.withOpacity(0.8),
                     ),
                   ),
                 ],
@@ -224,5 +271,39 @@ class ProfilePage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// 🔥 Fallback Mapping
+  String _mapBidangUsaha(int? id) {
+    switch (id) {
+      case 1:
+        return "IMPORTIR";
+      case 2:
+        return "EKSPORTIR";
+      case 3:
+        return "EKSPOR IMPOR";
+      default:
+        return "-";
+    }
+  }
+
+  String _toTitleCase(String? text) {
+    if (text == null || text.isEmpty) return '-';
+
+    return text
+        .toLowerCase()
+        .split(' ')
+        .map((word) =>
+    word.isNotEmpty
+        ? word[0].toUpperCase() + word.substring(1)
+        : '')
+        .join(' ');
+  }
+
+  Future<void> _loadAppVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      appVersion = info.version;
+    });
   }
 }

@@ -5,6 +5,7 @@ import '../../data/securestorage/secure_storage_service.dart';
 import '../../main_navigation.dart';
 import '../../data/controllers/billing_controller.dart';
 import '../../data/controllers/mailbox_controller.dart';
+import '../../data/controllers/profile_controller.dart';
 import '../../core/app_cache.dart';
 
 class AppLoaderPage extends StatefulWidget {
@@ -39,6 +40,10 @@ class _AppLoaderPageState extends State<AppLoaderPage> {
       // 🔥 PRELOAD MAILBOX
       final mailbox = await MailboxController.fetchMailbox();
       AppCache.mailboxList = mailbox;
+
+      // 🔥 PRELOAD PROFILE
+      final profile = await ProfileController.fetchProfile();
+      AppCache.profile = profile;
 
     } catch (e) {
       debugPrint("Preload error: $e");

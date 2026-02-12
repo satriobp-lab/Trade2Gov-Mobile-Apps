@@ -58,7 +58,7 @@ class MailboxMasukPage extends StatelessWidget {
                   const SizedBox(width: 14),
                   Expanded(
                     child: Text(
-                      mail.message,
+                      _toTitleCase(mail.message),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.roboto(
@@ -81,7 +81,7 @@ class MailboxMasukPage extends StatelessWidget {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text("Detail Pesan"),
-        content: Text(message),
+        content: Text(_toTitleCase(message)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -90,5 +90,18 @@ class MailboxMasukPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _toTitleCase(String? text) {
+    if (text == null || text.isEmpty) return '-';
+
+    return text
+        .toLowerCase()
+        .split(' ')
+        .map((word) =>
+    word.isNotEmpty
+        ? word[0].toUpperCase() + word.substring(1)
+        : '')
+        .join(' ');
   }
 }
