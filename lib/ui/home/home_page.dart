@@ -10,6 +10,9 @@ import '../../utils/app_colors.dart';
 import '../../utils/app_box_decoration.dart';
 import '../../data/securestorage/secure_storage_service.dart';
 import '../../ui/login/login_page.dart';
+import '../../data/controllers/billing_controller.dart';
+import '../../data/models/billing_response_model.dart';
+import '../../core/app_cache.dart';
 
 
 
@@ -41,10 +44,20 @@ class _HomePageState extends State<HomePage> {
 
   bool _snackbarShown = false;
 
+  BillingResponseModel? _latestBilling;
+  bool _isBillingLoading = true;
+
   @override
   void initState() {
     super.initState();
     _showWelcomeSnackbar();
+
+    if (AppCache.billingList.isNotEmpty) {
+      _latestBilling = AppCache.billingList.first;
+      _isBillingLoading = false;
+    } else {
+      _isBillingLoading = false;
+    }
   }
 
 
@@ -164,98 +177,11 @@ class _HomePageState extends State<HomePage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(15),
                     decoration: AppBox.primary(),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    'Status:',
-                                    style: GoogleFonts.roboto(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.customColorGray,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Tagihan terbit',
-                                    style: GoogleFonts.roboto(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.normal,
-                                      color: AppColors.customColorGray,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'RP 3.281.740,-',
-                                style: GoogleFonts.lato(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF389635),
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Row(
-                                children: [
-                                  Text(
-                                    'Periode:',
-                                    style: GoogleFonts.roboto(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.customColorGray,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Januari 2026',
-                                    style: GoogleFonts.roboto(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.normal,
-                                      color: AppColors.customColorGray,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const MainNavigation(initialIndex: 1),
-                              ),
-                                  (route) => false,
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.customColorRed,
-                            foregroundColor: Colors.white,
-                            overlayColor: Colors.black26,
-                            elevation: 2,
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: Text(
-                            'Lihat Tagihan',
-                            style: GoogleFonts.roboto(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    child: _isBillingLoading
+                        ? _buildBillingLoading()
+                        : _latestBilling == null
+                        ? _buildNoBilling()
+                        : _buildBillingContent(),
                   ),
 
                   const SizedBox(height: 25),
@@ -592,14 +518,14 @@ class _HomePageState extends State<HomePage> {
   Future<void> _logout(BuildContext context) async {
     final storage = SecureStorageService();
 
-    await storage.clearSession(); // 1️⃣ Hapus session
+    await storage.clearSession();
+
+    AppCache.welcomeShown = false; // 👈 RESET DI SINI
 
     if (!context.mounted) return;
 
-    // 2️⃣ Tutup drawer dulu
     Navigator.pop(context);
 
-    // 3️⃣ Pindah ke LoginPage & hapus semua history
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -608,14 +534,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _showWelcomeSnackbar() async {
-    if (_snackbarShown) return;
+    if (AppCache.welcomeShown) return; // 👈 cek global flag
 
     final storage = SecureStorageService();
     final name = await storage.getUserName();
 
     if (!mounted || name == null || name.isEmpty) return;
 
-    _snackbarShown = true;
+    AppCache.welcomeShown = true; // 👈 set global flag
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -637,6 +563,157 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     });
+  }
+
+  Future<void> _loadLatestBilling() async {
+    try {
+      final data = await BillingController.fetchBilling();
+
+      if (data.isNotEmpty) {
+        setState(() {
+          _latestBilling = data.first; // karena sudah di-sort terbaru
+          _isBillingLoading = false;
+        });
+      } else {
+        setState(() {
+          _isBillingLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isBillingLoading = false;
+      });
+    }
+  }
+
+  Widget _buildBillingLoading() {
+    return Row(
+      children: [
+        const CircularProgressIndicator(
+          color: AppColors.customColorRed,
+          strokeWidth: 2,
+        ),
+        const SizedBox(width: 16),
+        Text(
+          "Memuat tagihan terbaru...",
+          style: GoogleFonts.lato(
+            fontWeight: FontWeight.w600,
+            color: AppColors.customColorGray,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNoBilling() {
+    return Text(
+      "Tidak ada tagihan saat ini",
+      style: GoogleFonts.lato(
+        fontWeight: FontWeight.w600,
+        color: AppColors.customColorGray,
+      ),
+    );
+  }
+
+  Widget _buildBillingContent() {
+    final billing = _latestBilling!;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Status:',
+                    style: GoogleFonts.roboto(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.customColorGray,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Tagihan terbit',
+                    style: GoogleFonts.roboto(
+                      fontSize: 13,
+                      color: AppColors.customColorGray,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                formatRupiah(billing.billingTotal),
+                style: GoogleFonts.lato(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF389635),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Row(
+                children: [
+                  Text(
+                    'Periode:',
+                    style: GoogleFonts.roboto(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.customColorGray,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    billing.periodeTagihan.replaceAll('-', ' '),
+                    style: GoogleFonts.roboto(
+                      fontSize: 13,
+                      color: AppColors.customColorGray,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                const MainNavigation(initialIndex: 1),
+              ),
+                  (route) => false,
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.customColorRed,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          child: Text(
+            'Lihat Tagihan',
+            style: GoogleFonts.roboto(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String formatRupiah(int value) {
+    return 'Rp ${value.toString().replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+          (m) => '${m[1]}.',
+    )}';
   }
 }
 

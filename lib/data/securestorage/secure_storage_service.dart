@@ -1,4 +1,6 @@
+import 'dart:convert'; // <-- tambahkan ini
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:trade2gov/data/models/mailbox_response_model.dart';
 
 class SecureStorageService {
   static const _storage = FlutterSecureStorage();
@@ -40,4 +42,20 @@ class SecureStorageService {
     return await _storage.read(key: _keyEmail);
   }
 
+  // Simpan daftar mailbox terbaca sebagai JSON string
+  Future<void> saveReadMails(List<MailboxResponseModel> mails) async {
+    final jsonList = mails.map((e) => {
+      'id_user': e.idUser,
+      'msg': e.message,
+    }).toList();
+    await _storage.write(key: 'read_mails', value: jsonEncode(jsonList));
+  }
+
+  // Ambil daftar mailbox terbaca
+  Future<List<MailboxResponseModel>> getReadMails() async {
+    final data = await _storage.read(key: 'read_mails');
+    if (data == null) return [];
+    final List list = jsonDecode(data);
+    return list.map((e) => MailboxResponseModel.fromJson(e)).toList();
+  }
 }

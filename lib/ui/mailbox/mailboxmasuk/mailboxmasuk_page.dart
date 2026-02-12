@@ -2,135 +2,93 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_box_decoration.dart';
+import '../../../data/models/mailbox_response_model.dart';
 
 class MailboxMasukPage extends StatelessWidget {
-  const MailboxMasukPage({super.key});
+  final List<MailboxResponseModel> mails;
+  final Function(MailboxResponseModel) onRead;
+
+  const MailboxMasukPage({
+    super.key,
+    required this.mails,
+    required this.onRead,
+  });
 
   @override
   Widget build(BuildContext context) {
+    if (mails.isEmpty) {
+      return const Center(child: Text("Tidak ada pesan"));
+    }
+
+    final width = MediaQuery.of(context).size.width;
+
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-      itemCount: 4,
+      padding: const EdgeInsets.all(20),
+      itemCount: mails.length,
       itemBuilder: (context, index) {
-        return _buildMailItem(
-          context,
-          'Respon Penerimaan Data PIB Diterima',
-        );
-      },
-    );
-  }
+        final mail = mails[index];
 
-  Widget _buildMailItem(BuildContext context, String title) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      decoration: AppBox.primary(),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            _showMailPreview(context, title);
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-            child: Row(
-              children: [
-                Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.customColorRed.withOpacity(0.1),
-                  ),
-                  child: Icon(
-                    Icons.email_outlined,
-                    color: AppColors.customColorRed,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: GoogleFonts.roboto(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.customColorGray,
+        return Material(
+          borderRadius: BorderRadius.circular(18),
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(18),
+            onTap: () async {
+              await _showPreview(context, mail.message);
+              onRead(mail); // setelah dialog ditutup
+            },
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: AppBox.primary(),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.customColorRed.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8), // rectangular
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showMailPreview(BuildContext context, String title) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 25),
-          child: Container(
-            width: double.infinity,
-            decoration: AppBox.primary(),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.email_outlined,
+                    child: const Icon(
+                      Icons.mark_email_unread_outlined,
                       color: AppColors.customColorRed,
-                      size: 28,
+                      size: 26,
                     ),
-                    const SizedBox(width: 15),
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: GoogleFonts.roboto(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.customColorGray,
-                        ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Text(
+                      mail.message,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.roboto(
+                        fontSize: 13,
+                        color: AppColors.customColorGray,
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 15),
-                Divider(
-                  color: AppColors.customColorRed.withOpacity(0.3),
-                  thickness: 1,
-                ),
-                const SizedBox(height: 15),
-                Text(
-                  'Respon Penerimaan Data PIB Diterima. AJU : 00000000016720182901200451.',
-                  style: GoogleFonts.roboto(
-                    fontSize: 12,
-                    color: AppColors.customColorGray,
-                    height: 1.5,
                   ),
-                ),
-                const SizedBox(height: 30),
-                Text(
-                  '20 Oktober 2025',
-                  style: GoogleFonts.lato(
-                    fontSize: 12,
-                    color: AppColors.customColorGray.withOpacity(0.8),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
       },
+    );
+  }
+
+  Future<void> _showPreview(BuildContext context, String message) {
+    return showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Detail Pesan"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Tutup"),
+          ),
+        ],
+      ),
     );
   }
 }

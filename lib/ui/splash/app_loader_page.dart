@@ -3,6 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../utils/app_colors.dart';
 import '../../data/securestorage/secure_storage_service.dart';
 import '../../main_navigation.dart';
+import '../../data/controllers/billing_controller.dart';
+import '../../data/controllers/mailbox_controller.dart';
+import '../../core/app_cache.dart';
 
 class AppLoaderPage extends StatefulWidget {
   const AppLoaderPage({super.key});
@@ -28,8 +31,18 @@ class _AppLoaderPageState extends State<AppLoaderPage> {
       _name = name ?? '';
     });
 
-    // simulasi loading biar UI siap
-    await Future.delayed(const Duration(milliseconds: 1200));
+    try {
+      // 🔥 PRELOAD BILLING
+      final billing = await BillingController.fetchBilling();
+      AppCache.billingList = billing;
+
+      // 🔥 PRELOAD MAILBOX
+      final mailbox = await MailboxController.fetchMailbox();
+      AppCache.mailboxList = mailbox;
+
+    } catch (e) {
+      debugPrint("Preload error: $e");
+    }
 
     if (!mounted) return;
 

@@ -5,6 +5,7 @@ import 'package:trade2gov/data/controllers/billing_controller.dart';
 import '../../utils/app_colors.dart';
 import 'billingdetails/billing_details_page.dart';
 import '../../utils/app_box_decoration.dart';
+import '../../core/app_cache.dart';
 
 class BillingPage extends StatelessWidget {
   const BillingPage({super.key});
@@ -39,50 +40,24 @@ class BillingPage extends StatelessWidget {
       ),
 
       /// 🔥 DATA FROM API
-      body: FutureBuilder(
-        future: BillingController.fetchBilling(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.customColorRed,
-              ),
-            );
-          }
+      body: AppCache.billingList.isEmpty
+          ? Center(
+        child: Text(
+          'Tidak ada data billing',
+          style: GoogleFonts.lato(),
+        ),
+      )
+          : ListView.separated(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+        itemCount: AppCache.billingList.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 14),
+        itemBuilder: (context, index) {
+          final item = AppCache.billingList[index];
 
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Gagal memuat billing',
-                style: GoogleFonts.lato(color: Colors.red),
-              ),
-            );
-          }
-
-          final data = snapshot.data as List<BillingResponseModel>;
-
-          if (data.isEmpty) {
-            return Center(
-              child: Text(
-                'Tidak ada data billing',
-                style: GoogleFonts.lato(),
-              ),
-            );
-          }
-
-          return ListView.separated(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-            itemCount: data.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 14),
-            itemBuilder: (context, index) {
-              final item = data[index];
-
-              return _BillingCard(
-                title: 'Tagihan Terbit',
-                period: item.periodeTagihan.replaceAll('-', ' '),
-                amount: formatRupiah(item.billingTotal),
-              );
-            },
+          return _BillingCard(
+            title: 'Tagihan Terbit',
+            period: item.periodeTagihan.replaceAll('-', ' '),
+            amount: formatRupiah(item.billingTotal),
           );
         },
       ),
