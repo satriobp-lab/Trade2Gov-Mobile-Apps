@@ -13,6 +13,7 @@ import '../../ui/login/login_page.dart';
 import '../../data/controllers/billing_controller.dart';
 import '../../data/models/billing_response_model.dart';
 import '../../core/app_cache.dart';
+import '../../data/models/profile_response_model.dart';
 
 
 
@@ -47,10 +48,15 @@ class _HomePageState extends State<HomePage> {
   BillingResponseModel? _latestBilling;
   bool _isBillingLoading = true;
 
+  //profile drawer
+  ProfileResponseModel? _profile;
+
   @override
   void initState() {
     super.initState();
     _showWelcomeSnackbar();
+
+    _profile = AppCache.profile; // ambil dari cache
 
     if (AppCache.billingList.isNotEmpty) {
       _latestBilling = AppCache.billingList.first;
@@ -447,7 +453,7 @@ class _HomePageState extends State<HomePage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Dasha Taran',
+                        _profile?.nama ?? '-',
                         style: GoogleFonts.lato(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -456,7 +462,7 @@ class _HomePageState extends State<HomePage> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        'dasha@gmail.com',
+                        _profile?.email ?? '-',
                         style: GoogleFonts.lato(
                           fontSize: 13,
                           fontWeight: FontWeight.normal,

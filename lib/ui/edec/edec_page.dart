@@ -11,6 +11,10 @@ import 'PIB/summary/pib_summary_page.dart';
 import 'PEB/summary/peb_summary_page.dart'; // Import halaman PEB baru
 import 'PKBE/summary/pkbe_summary_page.dart';
 import 'PIBK/summary/pibk_summary_page.dart';
+import 'package:flutter/cupertino.dart';
+import '../../data/controllers/edec_controller.dart';
+import '../../core/app_cache.dart';
+
 
 class EdecPage extends StatefulWidget {
   const EdecPage({super.key});
@@ -20,12 +24,15 @@ class EdecPage extends StatefulWidget {
 }
 
 class _EdecPageState extends State<EdecPage> {
-  final Map<String, int> documentData = {
-    'PIB': 100,
-    'PEB': 85,
-    'PKBE': 45,
-    'PIBK': 30,
-  };
+  // final Map<String, int> documentData = {
+  //   'PIB': 100,
+  //   'PEB': 85,
+  //   'PKBE': 45,
+  //   'PIBK': 30,
+  // };
+
+  Map<String, int> documentData = {};
+  bool isLoading = true;
 
   final Map<String, Color> chartColors = {
     'PIB': AppColors.customColorRed,
@@ -35,7 +42,46 @@ class _EdecPageState extends State<EdecPage> {
   };
 
   @override
+  void initState() {
+    super.initState();
+    _loadDashboard();
+  }
+
+  Future<void> _loadDashboard() async {
+    try {
+      final data = await EdecController.getDashboard();
+
+      setState(() {
+        documentData = {
+          'PIB': data.pib,
+          'PEB': data.peb,
+          'PKBE': data.pkbe,
+          'PIBK': data.pibk,
+        };
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+
+  @override
   Widget build(BuildContext context) {
+
+    if (isLoading) {
+      return const Scaffold(
+        backgroundColor: AppColors.whiteColor,
+        body: Center(
+          child: CupertinoActivityIndicator(
+            radius: 15,
+          ),
+        ),
+      );
+    }
+
     int totalDocs = documentData.values.fold(0, (sum, item) => sum + item);
 
     return Scaffold(
@@ -227,7 +273,11 @@ class _EdecPageState extends State<EdecPage> {
                       if (title == 'PIB') {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const PibSummaryPage()),
+                          MaterialPageRoute(
+                            builder: (context) => PibSummaryPage(
+                              pibList: AppCache.edecDashboard?.pibList ?? [],
+                            ),
+                          ),
                         );
                       } else if (title == 'PEB') {
                         Navigator.push(

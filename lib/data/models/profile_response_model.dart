@@ -1,6 +1,6 @@
 class ProfileResponseModel {
   final int idUser;
-  final String name;
+  final String nama;
   final String email;
   final String phone;
   final String namaPerusahaan;
@@ -15,7 +15,7 @@ class ProfileResponseModel {
 
   ProfileResponseModel({
     required this.idUser,
-    required this.name,
+    required this.nama,
     required this.email,
     required this.phone,
     required this.namaPerusahaan,
@@ -32,7 +32,7 @@ class ProfileResponseModel {
   factory ProfileResponseModel.fromJson(Map<String, dynamic> json) {
     return ProfileResponseModel(
       idUser: json['id_user'],
-      name: json['name'] ?? '',
+      nama: json['nama'] ?? '',
       email: json['email'] ?? '',
       phone: json['phone'] ?? '',
       namaPerusahaan: json['nama_perusahaan'] ?? '',
