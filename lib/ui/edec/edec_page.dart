@@ -72,15 +72,31 @@ class _EdecPageState extends State<EdecPage> {
   Widget build(BuildContext context) {
 
     if (isLoading) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppColors.whiteColor,
         body: Center(
-          child: CupertinoActivityIndicator(
-            radius: 15,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CupertinoActivityIndicator(
+                radius: 15,
+                color: AppColors.customColorRed,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Loading e-Dec dashboard...',
+                style: GoogleFonts.lato(
+                  color: AppColors.customColorRed,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ),
       );
     }
+
 
     int totalDocs = documentData.values.fold(0, (sum, item) => sum + item);
 
@@ -282,7 +298,11 @@ class _EdecPageState extends State<EdecPage> {
                       } else if (title == 'PEB') {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const PebSummaryPage()),
+                          MaterialPageRoute(
+                            builder: (context) => PebSummaryPage(
+                              pebList: AppCache.edecDashboard?.pebList ?? [],
+                            ),
+                          ),
                         );
                       } else if (title == 'PKBE') {
                         Navigator.push(
