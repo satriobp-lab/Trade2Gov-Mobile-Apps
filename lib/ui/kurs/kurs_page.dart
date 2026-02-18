@@ -180,7 +180,68 @@ class _KursPageState extends State<KursPage> {
                 width: 180,
                 height: 45,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    if (_dateController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Silakan pilih tanggal terlebih dahulu',
+                            style: GoogleFonts.roboto(color: Colors.white),
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (_selectedValuta == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Silakan pilih valuta terlebih dahulu',
+                            style: GoogleFonts.roboto(color: Colors.white),
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    // 🔥 Karena endpoint masih unauthorized
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        title: Text(
+                          'Maintenance',
+                          style: GoogleFonts.lato(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.customColorRed,
+                          ),
+                        ),
+                        content: Text(
+                          'Fitur Kurs saat ini sedang dalam maintenance.\n\nSilakan coba kembali nanti.',
+                          style: GoogleFonts.roboto(
+                            color: AppColors.customColorGray,
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text(
+                              'OK',
+                              style: GoogleFonts.roboto(
+                                color: AppColors.customColorRed,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.customColorRed,
                     shape: RoundedRectangleBorder(
