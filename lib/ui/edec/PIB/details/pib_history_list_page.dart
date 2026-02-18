@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_box_decoration.dart';
 import 'menu/pib_details_menu_page.dart';
+import 'package:trade2gov/data/controllers/pib/pib_historylist_controller.dart';
+import 'package:trade2gov/data/models/pib/pib_historylist_response_model.dart';
 
 
 class PibHistoryListPage extends StatefulWidget {
@@ -16,11 +18,25 @@ class PibHistoryListPage extends StatefulWidget {
 class _PibHistoryListPageState extends State<PibHistoryListPage> {
   final TextEditingController _searchController = TextEditingController();
 
+  late Future<List<PibHistoryListResponseModel>> _futurePib;
+
+  final TextEditingController _noAjuController = TextEditingController();
+  final TextEditingController _pibNoController = TextEditingController();
+  final TextEditingController _pibTgController = TextEditingController();
+
+  List<PibHistoryListResponseModel> _allData = [];
+  List<PibHistoryListResponseModel> _filteredData = [];
+
   @override
   void initState() {
     super.initState();
     // ⛔ Sembunyikan navigation bar bawah (immersive mode)
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    _futurePib = PibHistoryListController.getPibHistory().then((value) {
+      _allData = value;
+      _filteredData = value;
+      return value;
+    });
   }
 
   @override
@@ -91,10 +107,10 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
                     ),
                     onPressed: () {
                       final keyword = _searchController.text;
-                      // TODO: panggil fungsi search
-                      debugPrint('Search: $keyword');
+                      _applyFlexibleSearch(keyword);
                     },
                   ),
+
 
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -102,7 +118,7 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
                 textInputAction: TextInputAction.search,
                 onSubmitted: (value) {
                   // Enter dari keyboard juga jalan
-                  debugPrint('Search submit: $value');
+                  _applyFlexibleSearch(value);
                 },
               ),
             ),
@@ -110,11 +126,39 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
 
           // 📄 List of History
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              itemCount: 5, // Contoh jumlah data
-              itemBuilder: (context, index) {
-                return _buildHistoryCard();
+            child: FutureBuilder<List<PibHistoryListResponseModel>>(
+              future: _futurePib,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text("Error: ${snapshot.error}"),
+                  );
+                }
+
+                if (_allData.isEmpty) {
+                  _allData = snapshot.data ?? [];
+                  _filteredData = _allData;
+                }
+
+                final data = _filteredData;
+
+
+                if (data.isEmpty) {
+                  return const Center(child: Text("Tidak ada data"));
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  itemCount: data.length,
+                  itemBuilder: (context, index) {
+                    final item = data[index];
+                    return _buildHistoryCard(item);
+                  },
+                );
               },
             ),
           ),
@@ -123,7 +167,7 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
     );
   }
 
-  Widget _buildHistoryCard() {
+  Widget _buildHistoryCard(PibHistoryListResponseModel item) {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(16),
@@ -137,7 +181,7 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
             children: [
               Expanded(
                 child: Text(
-                  '060000-000398-20251217-201062',
+                  item.noAju,
                   style: GoogleFonts.roboto(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -153,7 +197,7 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
 
           // Kantor & Deskripsi
           Text(
-            '040300 > KPU Tanjung Priok',
+            '${item.kdKpbc ?? '-'} > ${item.urKpbc ?? '-'}',
             style: GoogleFonts.roboto(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -164,13 +208,14 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
           const SizedBox(height: 8),
           // Kantor & Deskripsi
           Text(
-            'Daicel Corporation',
+            toTitleCase(item.indNama ?? '-'),
             style: GoogleFonts.roboto(
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: AppColors.customColorGray,
             ),
           ),
+
           // const Divider(height: 20, thickness: 0.8),
           //divider beda warna
           Divider(
@@ -184,9 +229,9 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildInfoItem(Icons.calendar_today_rounded, '17-12-2025'),
-              _buildInfoItem(Icons.bar_chart_outlined, 'Barang: 2'),
-              _buildInfoItem(Icons.local_shipping_rounded, 'Container: 2'),
+              _buildInfoItem(Icons.calendar_today_rounded, item.tglAju ?? '-'),
+              _buildInfoItem(Icons.bar_chart_outlined, 'Barang: ${item.jmBrg}'),
+              _buildInfoItem(Icons.local_shipping_rounded, 'Container: ${item.jmCont}'),
             ],
           ),
           const SizedBox(height: 15),
@@ -241,4 +286,65 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
       ],
     );
   }
+
+  void _applyFlexibleSearch(String keyword) {
+    final query = keyword.trim().toLowerCase();
+
+    setState(() {
+      if (query.isEmpty) {
+        _filteredData = _allData;
+      } else {
+        _filteredData = _allData.where((item) {
+          final noAjuMatch =
+          item.noAju.toLowerCase().contains(query);
+
+          final pibNoMatch =
+          (item.pibNo ?? '').toLowerCase().contains(query);
+
+          final pibTgMatch =
+          (item.pibTg ?? '').toLowerCase().contains(query);
+
+          return noAjuMatch || pibNoMatch || pibTgMatch;
+        }).toList();
+      }
+    });
+  }
+
+
+  Widget _buildSearchField(
+      TextEditingController controller, String hint) {
+    return Container(
+      decoration: AppBox.primary().copyWith(
+        color: AppColors.whiteColor,
+      ),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          hintText: hint,
+          prefixIcon: const Icon(
+            Icons.search_rounded,
+            color: AppColors.customColorRed,
+          ),
+          border: InputBorder.none,
+          contentPadding:
+          const EdgeInsets.symmetric(vertical: 12),
+        ),
+      ),
+    );
+  }
+
+  //helper
+  String toTitleCase(String text) {
+    if (text.isEmpty) return text;
+
+    return text
+        .toLowerCase()
+        .split(' ')
+        .map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1);
+    })
+        .join(' ');
+  }
+
 }
