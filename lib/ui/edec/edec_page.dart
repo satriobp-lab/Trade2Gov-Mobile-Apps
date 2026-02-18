@@ -307,12 +307,20 @@ class _EdecPageState extends State<EdecPage> {
                       } else if (title == 'PKBE') {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const PkbeSummaryPage()),
+                          MaterialPageRoute(
+                            builder: (context) => PkbeSummaryPage(
+                              pkbeList: AppCache.edecDashboard?.pkbeList ?? [],
+                            ),
+                          ),
                         );
                       } else if (title == 'PIBK') {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const PibkSummaryPage()),
+                          MaterialPageRoute(
+                            builder: (context) => PibkSummaryPage(
+                              pibkList: AppCache.edecDashboard?.pibkList ?? [],
+                            ),
+                          ),
                         );
                       }
                     },

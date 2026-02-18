@@ -5,13 +5,33 @@ import '../../../../utils/app_box_decoration.dart';
 import 'package:flutter/services.dart';
 
 class PibkSummaryPage extends StatefulWidget {
-  const PibkSummaryPage({super.key});
+  final List<String> pibkList;
+
+  const PibkSummaryPage({
+    super.key,
+    required this.pibkList,
+  });
 
   @override
   State<PibkSummaryPage> createState() => _PibkSummaryPageState();
 }
 
 class _PibkSummaryPageState extends State<PibkSummaryPage> {
+
+  //masterlabel
+  final List<String> masterLabels = [
+    'Total PIBK',
+    'PIBK BARANG KELUAR DARI GUDANG',
+    'PIBK CLEAR MANDATORY CHECK',
+    'PIBK EDIT',
+    'PIBK LAPORAN PEMERIKSAAN TELAH DIREKAM (LHP)',
+    'PIBK NPP',
+    'PIBK PROSES VALIDASI',
+    'PIBK REJECT',
+    'PIBK SPPBMC LEWAT',
+    'PIBK SPPBMCP',
+    'PIBK X-RAY',
+  ];
 
   @override
   void initState() {
@@ -32,22 +52,21 @@ class _PibkSummaryPageState extends State<PibkSummaryPage> {
     super.dispose();
   }
 
+  List<Map<String, dynamic>> _parseSummary() {
+    final backendMap = _convertBackendToMap();
+
+    return masterLabels.map((label) {
+      return {
+        'label': label,
+        'value': backendMap[label] ?? '0', // 👈 DEFAULT 0
+      };
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Daftar status summary PIBK berdasarkan instruksi
-    final List<Map<String, dynamic>> summaryData = [
-      {'label': 'Total PIBK', 'value': '30'},
-      {'label': 'PIBK Barang Keluar dari Gudang', 'value': '5'},
-      {'label': 'PIBK Clear Mandatory Check', 'value': '2'},
-      {'label': 'PIBK Edit', 'value': '1'},
-      {'label': 'PIBK Laporan Pemeriksaan Telah direkam (LHP)', 'value': '4'},
-      {'label': 'PIBK NPP', 'value': '0'},
-      {'label': 'PIBK Proses Validasi', 'value': '3'},
-      {'label': 'PIBK Reject', 'value': '1'},
-      {'label': 'PIBK SPPBMC Lewat', 'value': '2'},
-      {'label': 'PIBK SPPBMC', 'value': '10'},
-      {'label': 'PIBK X-RAY', 'value': '2'},
-    ];
+    // Daftar status summary PIBK sesuai instruksi
+    final summaryData = _parseSummary();
 
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
@@ -97,13 +116,13 @@ class _PibkSummaryPageState extends State<PibkSummaryPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  item['label'],
+                  _prettyLabel(item['label']),
                   style: GoogleFonts.roboto(
-                    fontSize: 11, // Sedikit lebih kecil karena teks label PIBK cukup panjang
+                    fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: isTotal ? Colors.white : AppColors.customColorGray,
                   ),
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
@@ -121,5 +140,41 @@ class _PibkSummaryPageState extends State<PibkSummaryPage> {
         },
       ),
     );
+  }
+
+  //helper
+  String _formatLabel(String text) {
+    return text
+        .toLowerCase()
+        .split(' ')
+        .map((word) =>
+    word.isNotEmpty ? word[0].toUpperCase() + word.substring(1) : '')
+        .join(' ');
+  }
+
+  Map<String, String> _convertBackendToMap() {
+    final Map<String, String> result = {};
+
+    for (var item in widget.pibkList) {
+      final parts = item.split(':');
+
+      if (parts.length >= 2) {
+        final label = parts[0].trim();
+        final value = parts[1].trim();
+
+        result[label] = value;
+      }
+    }
+    return result;
+  }
+
+  String _prettyLabel(String text) {
+    return text
+        .split(' ')
+        .map((word) {
+      if (word == 'PIB') return 'PIB';
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    })
+        .join(' ');
   }
 }

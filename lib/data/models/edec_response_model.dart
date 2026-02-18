@@ -7,6 +7,8 @@ class EdecResponseModel {
 
   final List<String> pibList;
   final List<String> pebList;
+  final List<String> pibkList;
+  final List<String> pkbeList;
 
   EdecResponseModel({
     required this.pib,
@@ -16,6 +18,8 @@ class EdecResponseModel {
     required this.tahun,
     required this.pibList,
     required this.pebList,
+    required this.pibkList,
+    required this.pkbeList,
   });
 
   factory EdecResponseModel.fromJson(Map<String, dynamic> json) {
@@ -30,6 +34,12 @@ class EdecResponseModel {
           : [],
       pebList: json['peblist'] != null
           ? List<String>.from(json['peblist'])
+          : [],
+      pibkList: json['pibklist'] != null
+          ? List<String>.from(json['pibklist'])
+          : [],
+      pkbeList: json['pkbelist'] != null
+          ? List<String>.from(json['pkbelist'])
           : [],
     );
   }

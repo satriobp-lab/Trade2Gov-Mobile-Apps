@@ -18,29 +18,49 @@ class MailboxTab extends StatefulWidget {
 class _MailboxTabState extends State<MailboxTab>
     with SingleTickerProviderStateMixin {
 
-  late TabController _tabController;
+  TabController? _tabController;
 
   List<MailboxResponseModel> masukList = [];
   List<MailboxResponseModel> terbacaList = [];
 
   bool _isLoading = true;
+  bool _isTabReady = false;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _initialize();
+  }
 
-    final data = AppCache.mailboxList;
+  Future<void> _initialize() async {
+    final lastTab = await SecureStorageService().getLastTab();
 
-    masukList = data;
-    terbacaList = [];
-    _isLoading = false;
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: lastTab,
+    );
+
+    _tabController!.addListener(() async {
+      if (_tabController!.indexIsChanging) {
+        await SecureStorageService()
+            .saveLastTab(_tabController!.index);
+      }
+    });
+
+    setState(() {
+      _isTabReady = true;
+    });
+
+    await _loadMailbox();
   }
 
   Future<void> _loadMailbox() async {
     try {
       final data = await MailboxController.fetchMailbox();
       final terbaca = await SecureStorageService().getReadMails();
+
+      if (!mounted) return;
 
       setState(() {
         terbacaList = terbaca;
@@ -51,6 +71,8 @@ class _MailboxTabState extends State<MailboxTab>
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+
       setState(() {
         _isLoading = false;
       });
@@ -64,11 +86,28 @@ class _MailboxTabState extends State<MailboxTab>
     });
 
     await SecureStorageService().saveReadMails(terbacaList);
-    _tabController.animateTo(1);
+
+    _tabController?.animateTo(1);
+    await SecureStorageService().saveLastTab(1);
+  }
+
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+
+    if (!_isTabReady) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(

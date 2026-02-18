@@ -58,4 +58,15 @@ class SecureStorageService {
     final List list = jsonDecode(data);
     return list.map((e) => MailboxResponseModel.fromJson(e)).toList();
   }
+
+  //save tab mailbox state
+  Future<void> saveLastTab(int index) async {
+    await _storage.write(key: 'last_mailbox_tab', value: index.toString());
+  }
+
+  Future<int> getLastTab() async {
+    final value = await _storage.read(key: 'last_mailbox_tab');
+    if (value == null) return 0;
+    return int.tryParse(value) ?? 0;
+  }
 }

@@ -5,13 +5,26 @@ import '../../../../utils/app_box_decoration.dart';
 import 'package:flutter/services.dart';
 
 class PkbeSummaryPage extends StatefulWidget {
-  const PkbeSummaryPage({super.key});
+  final List<String> pkbeList;
+
+  const PkbeSummaryPage({
+    super.key,
+    required this.pkbeList,
+  });
 
   @override
   State<PkbeSummaryPage> createState() => _PkbeSummaryPageState();
 }
 
 class _PkbeSummaryPageState extends State<PkbeSummaryPage> {
+  //masterlabel
+  final List<String> masterLabels = [
+    'Total PKBE',
+    'PKBE EDIT.',
+    'PKBE QUEUED',
+    'PKBE READY',
+  ];
+
 
   @override
   void initState() {
@@ -32,16 +45,21 @@ class _PkbeSummaryPageState extends State<PkbeSummaryPage> {
     super.dispose();
   }
 
+  List<Map<String, dynamic>> _parseSummary() {
+    final backendMap = _convertBackendToMap();
+
+    return masterLabels.map((label) {
+      return {
+        'label': label,
+        'value': backendMap[label] ?? '0', // 👈 DEFAULT 0
+      };
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Daftar status summary PKBE
-    final List<Map<String, dynamic>> summaryData = [
-      {'label': 'Total PKBE', 'value': '45'},
-      {'label': 'PKBE Edit', 'value': '5'},
-      {'label': 'PKBE Queued', 'value': '2'},
-      {'label': 'PKBE Ready', 'value': '38'},
-    ];
+    // Daftar status summary PKBE sesuai instruksi
+    final summaryData = _parseSummary();
 
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
@@ -91,7 +109,7 @@ class _PkbeSummaryPageState extends State<PkbeSummaryPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  item['label'],
+                  _prettyLabel(item['label']),
                   style: GoogleFonts.roboto(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -115,5 +133,41 @@ class _PkbeSummaryPageState extends State<PkbeSummaryPage> {
         },
       ),
     );
+  }
+
+  //helper
+  String _formatLabel(String text) {
+    return text
+        .toLowerCase()
+        .split(' ')
+        .map((word) =>
+    word.isNotEmpty ? word[0].toUpperCase() + word.substring(1) : '')
+        .join(' ');
+  }
+
+  Map<String, String> _convertBackendToMap() {
+    final Map<String, String> result = {};
+
+    for (var item in widget.pkbeList) {
+      final parts = item.split(':');
+
+      if (parts.length >= 2) {
+        final label = parts[0].trim();
+        final value = parts[1].trim();
+
+        result[label] = value;
+      }
+    }
+    return result;
+  }
+
+  String _prettyLabel(String text) {
+    return text
+        .split(' ')
+        .map((word) {
+      if (word == 'PIB') return 'PIB';
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    })
+        .join(' ');
   }
 }
