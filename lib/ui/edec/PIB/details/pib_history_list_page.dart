@@ -245,7 +245,9 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const PibDetailsMenuPage(),
+                    builder: (context) => PibDetailsMenuPage(
+                      car: item.noAju,
+                    ),
                   ),
                 );
               },

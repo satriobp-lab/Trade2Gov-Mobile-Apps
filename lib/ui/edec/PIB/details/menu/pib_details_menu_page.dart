@@ -17,7 +17,12 @@ import 'respon/pib_respon_details_page.dart';
 
 
 class PibDetailsMenuPage extends StatefulWidget {
-  const PibDetailsMenuPage({super.key});
+  final String car;
+
+  const PibDetailsMenuPage({
+    super.key,
+    required this.car,
+  });
 
   @override
   State<PibDetailsMenuPage> createState() => _PibDetailsMenuPageState();
@@ -80,7 +85,7 @@ class _PibDetailsMenuPageState extends State<PibDetailsMenuPage> {
             ),
             const SizedBox(height: 4),
             Text(
-              '060000-000398-20251217-201062',
+              widget.car,
               style: GoogleFonts.lato(
                 fontSize: 13,
                 color: AppColors.customColorGray,
@@ -143,10 +148,13 @@ class _PibDetailsMenuPageState extends State<PibDetailsMenuPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const PibHeaderDetailsPage(),
+                builder: (context) => PibHeaderDetailsPage(
+                  car: widget.car,
+                ),
               ),
             );
             break;
+
 
           case 'Data Barang':
             Navigator.push(
@@ -161,10 +169,13 @@ class _PibDetailsMenuPageState extends State<PibDetailsMenuPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const PibDokumenDetailsPage(),
+                builder: (context) => PibDokumenDetailsPage(
+                  car: widget.car.replaceAll('-', ''),
+                ),
               ),
             );
             break;
+
 
           case 'Kemasan':
             Navigator.push(
