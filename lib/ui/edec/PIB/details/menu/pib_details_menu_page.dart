@@ -160,7 +160,9 @@ class _PibDetailsMenuPageState extends State<PibDetailsMenuPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const PibListDataBarangPage(),
+                builder: (context) => PibListDataBarangPage(
+                  car: widget.car.replaceAll('-', ''),
+                ),
               ),
             );
             break;

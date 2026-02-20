@@ -182,7 +182,7 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
               Expanded(
                 child: Text(
                   item.noAju,
-                  style: GoogleFonts.roboto(
+                  style: GoogleFonts.lato(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: AppColors.customColorRed,
@@ -200,8 +200,7 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
             '${item.kdKpbc ?? '-'} > ${item.urKpbc ?? '-'}',
             style: GoogleFonts.roboto(
               fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: AppColors.customColorGray,
+              color: AppColors.customColorGray.withOpacity(0.8),
             ),
           ),
 
@@ -211,8 +210,7 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
             toTitleCase(item.indNama ?? '-'),
             style: GoogleFonts.roboto(
               fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: AppColors.customColorGray,
+              color: AppColors.customColorGray.withOpacity(0.8),
             ),
           ),
 

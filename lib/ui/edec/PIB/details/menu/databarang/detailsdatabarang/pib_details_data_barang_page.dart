@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../../utils/app_colors.dart';
 import '../../../../../../../utils/app_box_decoration.dart';
+import '../../../../../../../data/controllers/pib/pib_detailsdatabarang_controller.dart';
+import '../../../../../../../data/models/pib/pib_detailsdatabarang_response_model.dart';
 
 class PibDetailsDataBarangPage extends StatelessWidget {
   final String serialNumber;
+  final String car;
 
   const PibDetailsDataBarangPage({
     super.key,
-    this.serialNumber = 'Serial 1',
+    required this.car,
+    required this.serialNumber,
   });
 
   @override
@@ -37,7 +41,7 @@ class PibDetailsDataBarangPage extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              serialNumber,
+              '$car - Serial $serialNumber',
               style: GoogleFonts.lato(
                 fontSize: 13,
                 color: AppColors.customColorGray,
@@ -54,87 +58,123 @@ class PibDetailsDataBarangPage extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20, // kanan kiri tetap
-          vertical: 5,   // atas bawah dinaikin dikit
+      body: FutureBuilder<PibDetailsDataBarangResponseModel>(
+        future: PibDetailsDataBarangController.getDetails(
+          car: car,
+          serial: serialNumber,
         ),
-        child: Column(
-          children: [
-            // SEKSI DATA BARANG
-            _buildSectionTitle('Data Barang'),
-            _buildInfoCard([
-              _buildDetailRow('Kode HS / Seri', '8541.59.00/'),
-              _buildDetailRow('Uraian Barang', 'IC 65200-0AGQ-05A'),
-              _buildDetailRow('Merk', '-'),
-              _buildDetailRow('Type', '-'),
-              _buildDetailRow('Spec. Lain', '-'),
-              _buildDetailRow('Negara Asal', 'TW - Taiwan, Province of China'),
-            ]),
+        builder: (context, snapshot) {
 
-            // SEKSI KEMASAN
-            _buildSectionTitle('Kemasan'),
-            _buildInfoCard([
-              _buildDetailRow('Jumlah / Kemasan', '0 / PK - Package'),
-              _buildDetailRow('Netto', '45 Kilogram (KGM)'),
-            ]),
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            // SEKSI HARGA
-            _buildSectionTitle('Harga'),
-            _buildInfoCard([
-              _buildDetailRow('Valuta', 'USD - United States Dollar'),
-              _buildDetailRow('Nilai CIF', '1,250.00'),
-              _buildDetailRow('Harga Ekspor', '1,200.00'),
-              _buildDetailRow('Biaya Tambahan', '50.00'),
-              _buildDetailRow('Diskon', '0.00'),
-            ]),
+          if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
 
-            // SEKSI TARIF DAN FASILITAS (2 KOLOM)
-            _buildSectionTitle('Tarif dan Fasilitas'),
-            _buildInfoCard([
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Kolom Kiri (Tarif Dasar)
-                  Expanded(
-                    child: Column(
-                      children: [
-                        _buildTarifRow('BM', '0 %'),
-                        _buildTarifRow('BMI', '0'),
-                        _buildTarifRow('BMAD', '0'),
-                        _buildTarifRow('BMPB', '0'),
-                        _buildTarifRow('BMTP', '0'),
-                        _buildTarifRow('Cukai', '0'),
-                        _buildTarifRow('PPN', '11 %'),
-                        _buildTarifRow('PPnBM', '0 %'),
-                        _buildTarifRow('PPH', '0 %'),
-                      ],
-                    ),
+          final data = snapshot.data!;
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            child: Column(
+              children: [
+
+                // ================= DATA BARANG =================
+                _buildSectionTitle('Data Barang'),
+                _buildInfoCard([
+                  _buildDetailRow(
+                    'Kode HS / Seri',
+                    '${_display(data.noHs)} / ${_display(data.serial)}',
                   ),
-                  const SizedBox(width: 20),
-                  // Kolom Kanan (Fasilitas)
-                  Expanded(
-                    child: Column(
-                      children: [
-                        _buildTarifRow('Ditgg. Pemr', '0 %'),
-                        _buildTarifRow('Ditgg. Pemr', '5 %'),
-                        _buildTarifRow('Ditgg. Pemr', '5 %'),
-                        _buildTarifRow('Ditgg. Pemr', '5 %'),
-                        _buildTarifRow('Pelekatan Pita Cukai', '5 %'),
-                        _buildTarifRow('Ditgg. Pemr', '100 %'),
-                        _buildTarifRow('Ditgg. Pemr', '10 %'),
-                        _buildTarifRow('Ditgg. Pemr', '5 %'),
-                        _buildTarifRow('Ditgg. Pemr', '2 %'),
-                      ],
-                    ),
+                  _buildDetailRow('Uraian Barang', _display(data.brgUrai)),
+                  _buildDetailRow('Merk', _display(data.merk)),
+                  _buildDetailRow('Type', _display(data.tipe)),
+                  _buildDetailRow('Spec. Lain', _display(data.spfLain)),
+                  _buildDetailRow(
+                    'Negara Asal',
+                    '${_display(data.brgAsal)} - ${_display(data.negaraAsal)}',
                   ),
-                ],
-              ),
-            ]),
+                ]),
 
-            const SizedBox(height: 30),
-          ],
-        ),
+                // ================= KEMASAN =================
+                _buildSectionTitle('Kemasan'),
+                _buildInfoCard([
+                  _buildDetailRow(
+                    'Jumlah / Kemasan',
+                    '${_display(data.jmlSat)} ${_display(data.kodeSatuan)} - ${_display(data.kodeSatuanUr)}'
+                        ' / ${_display(data.jmlKemasan)} ${_display(data.kodeKemasan)} - ${_display(data.kodeKemasanUr)}',
+                  ),
+                  _buildDetailRow(
+                    'Netto',
+                    _display(data.netto),
+                  ),
+                ]),
+
+                // ================= HARGA =================
+                _buildSectionTitle('Harga'),
+                _buildInfoCard([
+                  _buildDetailRow('Amount', _display(data.nilaiInvoice)),
+                  _buildDetailRow(
+                    'BT - Diskon',
+                    _display(data.biayaTambahan - data.diskon),
+                  ),
+                  _buildDetailRow('Jumlah Satuan', _display(data.jmlSat)),
+                  _buildDetailRow('Kode Satuan', _display(data.kodeSatuan)),
+                  _buildDetailRow('Harga Satuan', _display(data.hargaSatuan)),
+                  _buildDetailRow('Harga FOB', _display(data.hargaFob)),
+                  _buildDetailRow('Freight', _display(data.freight)),
+                  _buildDetailRow('Asuransi', _display(data.asuransi)),
+                  _buildDetailRow('Harga CIF', _display(data.cif)),
+                  _buildDetailRow('CIF (Rp)', _display(data.cifRp)),
+                ]),
+
+                // ================= TARIF & FASILITAS =================
+                _buildSectionTitle('Tarif dan Fasilitas'),
+                _buildInfoCard([
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          children: [
+                            _buildTarifRow('BM', _percent(data.trpBm)),
+                            _buildTarifRow('BMI', _percent(data.trpBmIM)),
+                            _buildTarifRow('BMAD', _percent(data.trpBmAD)),
+                            _buildTarifRow('BMPB', _percent(data.trpBmPB)),
+                            _buildTarifRow('BMTP', _percent(data.trpBmTP)),
+                            _buildTarifRow('Cukai', _percent(data.trpCukai)),
+                            _buildTarifRow('PPN', _percent(data.trpPpn)),
+                            _buildTarifRow('PPnBM', _percent(data.trpPpnBm)),
+                            _buildTarifRow('PPH', _percent(data.trpPph)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: Column(
+                          children: [
+                            _buildTarifRow('Ditgg. Pemr (BM)', _percent(data.fasBm)),
+                            _buildTarifRow('Ditgg. Pemr (BMI)', _percent(data.fasBmIM)),
+                            _buildTarifRow('Ditgg. Pemr (BMAD)', _percent(data.fasBmAD)),
+                            _buildTarifRow('Ditgg. Pemr (BMPB)', _percent(data.fasBmPB)),
+                            _buildTarifRow('Ditgg. Pemr (BMTP)', _percent(data.fasBmTP)),
+                            _buildTarifRow('Pelekatan Pita Cukai', _percent(data.fasCuk)),
+                            _buildTarifRow('Ditgg. Pemr (PPN)', _percent(data.fasPpn)),
+                            _buildTarifRow('Ditgg. Pemr (PPnBM)', _percent(data.fasPbm)),
+                            _buildTarifRow('Ditgg. Pemr (PPH)', _percent(data.fasPph)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ]),
+
+                const SizedBox(height: 30),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -240,5 +280,34 @@ class PibDetailsDataBarangPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _display(dynamic value) {
+    if (value == null) return '-';
+
+    if (value is String) {
+      if (value.trim().isEmpty) return '-';
+      return _toTitleCase(value);
+    }
+
+    return value.toString();
+  }
+
+  String _percent(num? value) {
+    if (value == null) return '-';
+    return '$value %';
+  }
+
+  String _toTitleCase(String text) {
+    if (text.trim().isEmpty) return '-';
+
+    return text
+        .toLowerCase()
+        .split(' ')
+        .map((word) {
+      if (word.isEmpty) return '';
+      return word[0].toUpperCase() + word.substring(1);
+    })
+        .join(' ');
   }
 }

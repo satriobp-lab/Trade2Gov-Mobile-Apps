@@ -3,19 +3,26 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
 import 'detailsdatabarang/pib_details_data_barang_page.dart';
+import '../../../../../../data/controllers/pib/pib_listdatabarang_controller.dart';
+import '../../../../../../data/models/pib/pib_listdatabarang_response_model.dart';
 
 
 class PibListDataBarangPage extends StatelessWidget {
-  const PibListDataBarangPage({super.key});
+  final String car;
+
+  const PibListDataBarangPage({
+    super.key,
+    required this.car,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // Mock data untuk daftar barang
-    final List<Map<String, String>> barangList = [
-      {'serial': 'Serial 1', 'hs': '8541.59.00'},
-      {'serial': 'Serial 2', 'hs': '3907.30.90'},
-      {'serial': 'Serial 3', 'hs': '2915.21.00'},
-    ];
+    // // Mock data untuk daftar barang
+    // final List<Map<String, String>> barangList = [
+    //   {'serial': 'Serial 1', 'hs': '8541.59.00'},
+    //   {'serial': 'Serial 2', 'hs': '3907.30.90'},
+    //   {'serial': 'Serial 3', 'hs': '2915.21.00'},
+    // ];
 
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
@@ -41,7 +48,7 @@ class PibListDataBarangPage extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '060000-000398-20251217-201062',
+              car,
               style: GoogleFonts.lato(
                 fontSize: 13,
                 color: AppColors.customColorGray,
@@ -58,89 +65,112 @@ class PibListDataBarangPage extends StatelessWidget {
           ),
         ),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        itemCount: barangList.length,
-        itemBuilder: (context, index) {
-          final item = barangList[index];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: AppBox.primary(),
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                // Icon Bulat untuk Nomor Serial
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: AppColors.customColorRed.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.inventory_2_rounded,
-                    color: AppColors.customColorRed,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
+      body: FutureBuilder<List<PibListDataBarangResponseModel>>(
+        future: PibListDataBarangController.getListDataBarang(car),
+        builder: (context, snapshot) {
 
-                // Info Text
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item['serial']!,
-                        style: GoogleFonts.lato(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.customColorGray,
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Text("Error: ${snapshot.error}"),
+            );
+          }
+
+          final barangList = snapshot.data ?? [];
+
+          if (barangList.isEmpty) {
+            return const Center(child: Text("Tidak ada data barang"));
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            itemCount: barangList.length,
+            itemBuilder: (context, index) {
+              final item = barangList[index];
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: AppBox.primary(),
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: AppColors.customColorRed.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.inventory_2_rounded,
+                        color: AppColors.customColorRed,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Serial ${item.serial}',
+                            style: GoogleFonts.lato(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.customColorGray,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'HS : ${item.kodeHs}',
+                            style: GoogleFonts.roboto(
+                              fontSize: 14,
+                              color: AppColors.customColorGray.withOpacity(0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                PibDetailsDataBarangPage(
+                                  car: car,
+                                  serialNumber: item.serial.toString(),
+                                ),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.customColorRed,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'HS : ${item['hs']}',
+                      child: Text(
+                        'View Details',
                         style: GoogleFonts.roboto(
-                          fontSize: 14,
-                          color: AppColors.customColorGray.withOpacity(0.7),
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-
-                // Button View Details
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PibDetailsDataBarangPage(
-                          serialNumber: item['serial']!,
-                        ),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.customColorRed,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ),
-                  child: Text(
-                    'View Details',
-                    style: GoogleFonts.roboto(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           );
         },
       ),
