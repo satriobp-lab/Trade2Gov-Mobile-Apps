@@ -183,7 +183,9 @@ class _PibDetailsMenuPageState extends State<PibDetailsMenuPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const PibKemasanDetailsPage(),
+                builder: (context) => PibKemasanDetailsPage(
+                  car: widget.car,
+                ),
               ),
             );
             break;
