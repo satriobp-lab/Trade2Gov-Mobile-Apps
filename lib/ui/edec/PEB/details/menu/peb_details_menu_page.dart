@@ -14,11 +14,24 @@ import '../../details/menu/respon/peb_respon_details_page.dart';
 import 'transaksiekspor/peb_transaksi_ekspor_details_page.dart';
 
 class PebDetailsMenuPage extends StatefulWidget {
-  const PebDetailsMenuPage({super.key});
+  final String car;
+
+  const PebDetailsMenuPage({
+    super.key,
+    required this.car,
+  });
 
   @override
   State<PebDetailsMenuPage> createState() => _PebDetailsMenuPageState();
 }
+
+//buat dibawah yang dummy
+// class PebDetailsMenuPage extends StatefulWidget {
+//   const PebDetailsMenuPage({super.key});
+//
+//   @override
+//   State<PebDetailsMenuPage> createState() => _PebDetailsMenuPageState();
+// }
 
 class _PebDetailsMenuPageState extends State<PebDetailsMenuPage> {
   int? activeIndex;
