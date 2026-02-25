@@ -89,7 +89,7 @@ class _PebDetailsMenuPageState extends State<PebDetailsMenuPage> {
             ),
             const SizedBox(height: 4),
             Text(
-              '301019-9CB5DF-20251007-000009',
+              widget.car,
               style: GoogleFonts.lato(
                 fontSize: 13,
                 color: AppColors.customColorGray,
@@ -152,7 +152,9 @@ class _PebDetailsMenuPageState extends State<PebDetailsMenuPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const PebHeaderDetailsPage(),
+                builder: (context) => PebHeaderDetailsPage(
+                  car: widget.car,
+                ),
               ),
             );
             break;

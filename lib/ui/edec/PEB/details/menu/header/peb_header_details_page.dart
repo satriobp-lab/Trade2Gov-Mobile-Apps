@@ -2,11 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
+import '../../../../../../data/controllers/peb/peb_header_controller.dart';
+import '../../../../../../data/models/peb/peb_header_response_model.dart';
 
-class PebHeaderDetailsPage extends StatelessWidget {
-  const PebHeaderDetailsPage({super.key});
+class PebHeaderDetailsPage extends StatefulWidget {
+  final String car;
+
+  const PebHeaderDetailsPage({
+    super.key,
+    required this.car,
+  });
 
   @override
+  State<PebHeaderDetailsPage> createState() =>
+      _PebHeaderDetailsPageState();
+}
+
+class _PebHeaderDetailsPageState
+    extends State<PebHeaderDetailsPage> {
+
+  late Future<PebHeaderResponseModel?> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future =
+        PebHeaderController.getPebHeader(widget.car);
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
@@ -32,7 +55,7 @@ class PebHeaderDetailsPage extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '301019-9CB5DF-20251007-000009',
+              widget.car,
               style: GoogleFonts.lato(
                 fontSize: 13,
                 color: AppColors.customColorGray,
@@ -50,85 +73,117 @@ class PebHeaderDetailsPage extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20, // kanan kiri tetap
-          vertical: 5,   // atas bawah dinaikin dikit
-        ),
-        child: Column(
-          children: [
-            _buildSectionTitle('Data PEB'),
-            _buildInfoCard([
-              _buildDetailRow('Kantor Pabean', 'KPPBC Tanjung Perak'),
-              _buildDetailRow('Kantor Pabean Ekspor', '070100 - KPPBC Tanjung Perak'),
-              _buildDetailRow('Nomor Aju', '3010199CB5DF20251007000009'),
-              _buildDetailRow('Header - No. Daftar', '185301 - 2025-10-11'),
-              _buildDetailRow('Jenis Ekspor', 'Ekspor Biasa'),
-              _buildDetailRow('Kategori Ekspor', 'Umum'),
-              _buildDetailRow('Cara Pembayaran', 'Gabungan/Lainnya'),
-            ]),
+      body: FutureBuilder<PebHeaderResponseModel?>(
+        future: _future,
+        builder: (context, snapshot) {
 
-            _buildSectionTitle('Eksportir'),
-            _buildInfoCard([
-              _buildDetailRow('Identitas', 'NPWP - 0000919089208930039320'),
-              _buildDetailRow('Nama', 'Hanjaya Mandala Sampoerna D'),
-              _buildDetailRow('Alamat', 'Jalan Raya disana II'),
-              _buildDetailRow('Status', 'PMDN (non migas)'),
-              _buildDetailRow('Niper', 'Khusus Fasilitas KITE'),
-            ]),
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            _buildSectionTitle('Penerima'),
-            _buildInfoCard([
-              _buildDetailRow('Nama', 'Philip Morris'),
-              _buildDetailRow('Alamat', 'Pontao do Lago Sul (Brasília)'),
-              _buildDetailRow('Negara', 'BR : Brazil'),
-            ]),
+          // 🔥 Kalau null / tidak ada data
+          if (!snapshot.hasData || snapshot.data == null) {
+            return _buildEmptyState();
+          }
 
-            _buildSectionTitle('Pembeli'),
-            _buildInfoCard([
-              _buildDetailRow('Nama', 'Johan Liebert'),
-              _buildDetailRow('Alamat', 'Kinderheim 511'),
-              _buildDetailRow('Negara', 'GER : Germany'),
-            ]),
+          final data = snapshot.data!;
 
-            _buildSectionTitle('PPJK'),
-            _buildInfoCard([
-              _buildDetailRow('Identitas', '-'),
-              _buildDetailRow('Nama', '-'),
-              _buildDetailRow('Alamat', '-'),
-            ]),
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            child: Column(
+              children: [
 
-            _buildSectionTitle('Data Pengangkutan'),
-            _buildInfoCard([
-              _buildDetailRow('Cara Pengangkutan', 'Laut'),
-              _buildDetailRow('Nama Sarana Pengangkut', 'APL PUSAN'),
-              _buildDetailRow('Nomor Voyage/Flight', '0AUDWN'),
-              _buildDetailRow('Bendera Pengangkut', 'SG - Singapore'),
-              _buildDetailRow('Perkiraan Tanggal Ekspor', '2026-01-21'),
-              _buildDetailRow('Pelabuhan Muat Asal', 'IDTPE - Tanjung Perak'),
-              _buildDetailRow('Pelabuhan Muat Ekspor', 'JPUKB - Kobe'),
-              _buildDetailRow('Pelabuhan Bongkar', 'BRNVT - Navegantes'),
-              _buildDetailRow('Pelabuhan Tujuan', 'IDTPP - Tanjung Priok'),
+                // ================= DATA PEB =================
+                _buildSectionTitle('Data PEB'),
+                _buildInfoCard([
+                  _buildDetailRow('Kantor Pabean',
+                      '${data.kdKtr ?? '-'} - ${data.urKdKtr ?? '-'}'),
+                  _buildDetailRow('Kantor Pabean Ekspor',
+                      '${data.kdKtrEks ?? '-'} - ${data.urKdKtrEks ?? '-'}'),
+                  _buildDetailRow('Nomor Aju', data.car ?? '-'),
+                  _buildDetailRow('Header - No. Daftar',
+                      '${data.noDaft ?? '-'} - ${data.tgDaft ?? '-'}'),
+                  _buildDetailRow('Jenis Ekspor', data.urJneks ?? '-'),
+                  _buildDetailRow('Kategori Ekspor', data.urKateks ?? '-'),
+                  _buildDetailRow('Cara Pembayaran', data.urJnbyr ?? '-'),
+                ]),
 
-              _buildDetailRow('Negara Tujuan Eksport', 'BR - Brazil'),
-              _buildDetailRow('Lokasi / Tanggal Pemeriksa', 'Gudang Eksportir'),
-              _buildDetailRow('KPBC Periksa', '071300 - KPPBC Pasuruan'),
-              _buildDetailRow('Gudang PLB', '-'),
-              _buildDetailRow('Cara Penyerahan Barang', 'Cost and Freight'),
-              _buildDetailRow('Komoditi', 'Non Migas'),
-              _buildDetailRow('Volume', '0'),
-              _buildDetailRow('Bruto', '9218.4'),
-              _buildDetailRow('Netto', '8100'),
-              _buildDetailRow('Jumlah Barang', '10'),
-              _buildDetailRow('Nilai Tukar Rupiah', '0'),
-              _buildDetailRow('Nilai BK (Rupiah)', '0'),
-              _buildDetailRow('Penerimaa Pajak Lainnya', '0'),
+                // ================= EKSPORTIR =================
+                _buildSectionTitle('Eksportir'),
+                _buildInfoCard([
+                  _buildDetailRow('Identitas', data.npwpEks ?? '-'),
+                  _buildDetailRow('Nama', data.namaEks ?? '-'),
+                  _buildDetailRow('Alamat', data.alamatEks ?? '-'),
+                  _buildDetailRow('Status', data.urStatusH ?? '-'),
+                  _buildDetailRow('Niper', data.niper ?? '-'),
+                ]),
 
-            ]),
+                // ================= PENERIMA =================
+                _buildSectionTitle('Penerima'),
+                _buildInfoCard([
+                  _buildDetailRow('Nama', data.namaBeli ?? '-'),
+                  _buildDetailRow('Alamat', data.alamatBeli ?? '-'),
+                  _buildDetailRow('Negara',
+                      '${data.negBeli ?? '-'} - ${data.urNegBeli ?? '-'}'),
+                ]),
 
-            const SizedBox(height: 30),
-          ],
-        ),
+                // ================= PEMBELI 2 =================
+                _buildSectionTitle('Pembeli'),
+                _buildInfoCard([
+                  _buildDetailRow('Nama', data.namaBeli2 ?? '-'),
+                  _buildDetailRow('Alamat', data.alamatBeli2 ?? '-'),
+                  _buildDetailRow('Negara',
+                      '${data.negBeli2 ?? '-'} - ${data.urNegBeli2 ?? '-'}'),
+                ]),
+
+                // ================= PPJK =================
+                _buildSectionTitle('PPJK'),
+                _buildInfoCard([
+                  _buildDetailRow('Identitas', data.npwpPpjk ?? '-'),
+                  _buildDetailRow('Nama', data.namaPpjk ?? '-'),
+                  _buildDetailRow('Alamat', data.alamatPpjk ?? '-'),
+                ]),
+
+                // ================= PENGANGKUTAN =================
+                _buildSectionTitle('Data Pengangkutan'),
+                _buildInfoCard([
+                  _buildDetailRow('Cara Pengangkutan', data.urModa ?? '-'),
+                  _buildDetailRow('Nama Sarana Pengangkut', data.carrier ?? '-'),
+                  _buildDetailRow('Nomor Voyage/Flight', data.voy ?? '-'),
+                  _buildDetailRow('Bendera Pengangkut',
+                      '${data.bendera ?? '-'} - ${data.urBendera ?? '-'}'),
+                  _buildDetailRow('Perkiraan Tanggal Ekspor', data.tgEks ?? '-'),
+                  _buildDetailRow('Pelabuhan Muat Asal',
+                      '${data.pelMuat ?? '-'} - ${data.urPelMuat ?? '-'}'),
+                  _buildDetailRow('Pelabuhan Muat Ekspor',
+                      '${data.pelMuatEks ?? '-'} - ${data.urPelMuatEks ?? '-'}'),
+                  _buildDetailRow('Pelabuhan Bongkar',
+                      '${data.pelBongkar ?? '-'} - ${data.urPelBongkar ?? '-'}'),
+                  _buildDetailRow('Pelabuhan Tujuan',
+                      '${data.pelTujuan ?? '-'} - ${data.urPelTujuan ?? '-'}'),
+                  _buildDetailRow('Negara Tujuan',
+                      '${data.negTuju ?? '-'} - ${data.urNegTuju ?? '-'}'),
+                  _buildDetailRow('Lokasi Barang', data.kdLokBrg ?? '-'),
+                  _buildDetailRow('KPBC Periksa',
+                      '${data.kdKtrPriks ?? '-'} - ${data.urKdKtrPriks ?? '-'}'),
+                  _buildDetailRow('Gudang PLB', data.gudangPlb ?? '-'),
+                  _buildDetailRow('Cara Penyerahan Barang', data.delivery ?? '-'),
+                  _buildDetailRow('Komoditi', data.urKmdt ?? '-'),
+                  _buildDetailRow('Volume', '${data.volume ?? 0}'),
+                  _buildDetailRow('Bruto', '${data.bruto ?? 0}'),
+                  _buildDetailRow('Netto', '${data.netto ?? 0}'),
+                  _buildDetailRow('Jumlah Barang', '${data.jumlahBarang ?? 0}'),
+                  _buildDetailRow('Nilai Tukar Rupiah', '${data.nilKurs ?? 0}'),
+                  _buildDetailRow('Nilai BK (Rupiah)', '${data.nilPe ?? 0}'),
+                  _buildDetailRow('Penerimaan Pajak Lainnya',
+                      '${data.nilPajakLain ?? 0}'),
+                ]),
+
+                const SizedBox(height: 30),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -185,7 +240,7 @@ class PebHeaderDetailsPage extends StatelessWidget {
               ),
             ),
             child: Text(
-              value,
+              _formatValue(value),
               style: GoogleFonts.roboto(
                 fontSize: 12,
                 color: AppColors.customColorGray,
@@ -193,6 +248,92 @@ class PebHeaderDetailsPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  String _formatValue(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return '-';
+    }
+
+    String result = value.trim();
+
+    // ISO date biarkan
+    final dateRegex = RegExp(r'^\d{4}-\d{2}-\d{2}');
+    if (dateRegex.hasMatch(result)) {
+      return result;
+    }
+
+    // hilangkan angka depan seperti "4 - Udara"
+    result = result.replaceFirst(
+      RegExp(r'^\d{1,2}\s*-\s*'),
+      '',
+    );
+
+    final exceptions = ['PT', 'NPWP', 'API'];
+
+    result = result
+        .toLowerCase()
+        .split(' ')
+        .map((word) {
+      if (word.isEmpty) return '';
+      if (exceptions.contains(word.toUpperCase())) {
+        return word.toUpperCase();
+      }
+      return word[0].toUpperCase() + word.substring(1);
+    })
+        .join(' ');
+
+    return result;
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+            // 🔴 Circle Background
+            Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.customColorRed.withOpacity(0.08),
+              ),
+              child: Icon(
+                Icons.search_off_rounded,
+                size: 70,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            Text(
+              "Data Header Tidak Ditemukan",
+              style: GoogleFonts.lato(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              "Detail header untuk CAR ini belum tersedia.\nSilakan pastikan nomor dokumen benar.",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.roboto(
+                fontSize: 13,
+                color: AppColors.customColorGray,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

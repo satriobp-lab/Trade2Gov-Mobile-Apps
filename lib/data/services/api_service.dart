@@ -35,10 +35,19 @@ class ApiService {
       body: jsonEncode(body),
     );
 
+    print("URL: $baseUrl/$endpoint");
+    print("BODY: ${jsonEncode(body)}");
+    print("STATUS: ${response.statusCode}");
+
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
-    } else {
-      throw Exception('HTTP ${response.statusCode}');
     }
+
+    // 🔥 kalau 500 anggap tidak ada data
+    if (response.statusCode == 500) {
+      return null;
+    }
+
+    throw Exception('Terjadi kesalahan server');
   }
 }
