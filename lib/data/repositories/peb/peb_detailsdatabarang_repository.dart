@@ -6,6 +6,34 @@ class PebDetailsDataBarangRepository {
   final ApiService _api = ApiService();
   final SecureStorageService _storage = SecureStorageService();
 
+  //khusus implement all data
+  // Future<PebDetailsDataBarangResponseModel?> fetchDetails({
+  //   required String car,
+  //   required String seriBrg,
+  // }) async {
+  //   final userId = await _storage.getUserId();
+  //
+  //   if (userId == null) {
+  //     throw Exception("User belum login");
+  //   }
+  //
+  //   final response = await _api.postRaw(
+  //     'edeclaration/bc30/detail/barang',
+  //     {
+  //       "USER_ID": userId,
+  //       "CAR": car,
+  //       "SERIBRG": seriBrg,
+  //     },
+  //   );
+  //
+  //   if (response == null) {
+  //     return null;
+  //   }
+  //
+  //   return PebDetailsDataBarangResponseModel.fromJson(response);
+  // }
+
+  // hapus ini - karena ini force user 175
   Future<PebDetailsDataBarangResponseModel?> fetchDetails({
     required String car,
     required String seriBrg,
