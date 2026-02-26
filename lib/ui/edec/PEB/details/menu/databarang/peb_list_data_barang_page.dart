@@ -3,10 +3,34 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
 import 'detailsdatabarang/peb_details_data_barang_page.dart';
+import 'package:trade2gov/data/controllers/peb/peb_listdatabarang_controller.dart';
+import 'package:trade2gov/data/models/peb/peb_listdatabarang_response_model.dart';
 
 
-class PebListDataBarangPage extends StatelessWidget {
-  const PebListDataBarangPage({super.key});
+class PebListDataBarangPage extends StatefulWidget {
+  final String car;
+
+  const PebListDataBarangPage({
+    super.key,
+    required this.car,
+  });
+
+  @override
+  State<PebListDataBarangPage> createState() =>
+      _PebListDataBarangPageState();
+}
+
+class _PebListDataBarangPageState
+    extends State<PebListDataBarangPage> {
+
+  late Future<List<PebListDataBarangResponseModel>> _futureBarang;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureBarang =
+        PebListDataBarangController.getListDataBarang(car: widget.car);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +65,7 @@ class PebListDataBarangPage extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '301019-9CB5DF-20251007-000009',
+              widget.car,
               style: GoogleFonts.lato(
                 fontSize: 13,
                 color: AppColors.customColorGray,
@@ -58,91 +82,164 @@ class PebListDataBarangPage extends StatelessWidget {
           ),
         ),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        itemCount: barangList.length,
-        itemBuilder: (context, index) {
-          final item = barangList[index];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: AppBox.primary(),
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                // Icon Bulat untuk Nomor Serial
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: AppColors.customColorRed.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.inventory_2_rounded,
-                    color: AppColors.customColorRed,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
+      body: FutureBuilder<List<PebListDataBarangResponseModel>>(
+        future: _futureBarang,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-                // Info Text
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item['serial']!,
-                        style: GoogleFonts.lato(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.customColorGray,
+          if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
+
+          final data = snapshot.data ?? [];
+
+          if (data.isEmpty) {
+            return _buildEmptyState();
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            itemCount: data.length,
+            itemBuilder: (context, index) {
+              final item = data[index];
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: AppBox.primary(),
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    // Icon Bulat
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: AppColors.customColorRed.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.inventory_2_rounded,
+                        color: AppColors.customColorRed,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+
+                    // Info Text (SAMA SEPERTI SEBELUMNYA)
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Serial ${item.seriBrg ?? '-'}",
+                            style: GoogleFonts.lato(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.customColorGray,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'HS : ${item.kodeHs ?? '-'}',
+                            style: GoogleFonts.roboto(
+                              fontSize: 14,
+                              color: AppColors.customColorGray.withOpacity(0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Button View Details (TETAP)
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PebDetailsDataBarangPage(
+                              car: widget.car, // 🔥 kirim CAR dari halaman list
+                              serialNumber: (item.seriBrg ?? '').toString(),
+                            ),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.customColorRed,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'HS : ${item['hs']}',
+                      child: Text(
+                        'View Details',
                         style: GoogleFonts.roboto(
-                          fontSize: 14,
-                          color: AppColors.customColorGray.withOpacity(0.7),
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-
-                // Button View Details
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PebDetailsDataBarangPage(
-                          serialNumber: item['serial']!,
-                        ),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.customColorRed,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ),
-                  child: Text(
-                    'View Details',
-                    style: GoogleFonts.roboto(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Icon bulat
+            Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.customColorRed.withOpacity(0.08),
+              ),
+              child: const Icon(
+                Icons.inventory_2_outlined,
+                size: 70,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            // Title
+            Text(
+              "Data Barang Tidak Ditemukan",
+              style: GoogleFonts.lato(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            // Subtitle
+            Text(
+              "Belum terdapat data barang untuk CAR ini.\nSilakan periksa kembali data Anda.",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.roboto(
+                fontSize: 13,
+                color: AppColors.customColorGray,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

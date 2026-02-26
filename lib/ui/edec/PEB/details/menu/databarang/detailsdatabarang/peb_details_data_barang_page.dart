@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../../utils/app_colors.dart';
 import '../../../../../../../utils/app_box_decoration.dart';
+import '../../../../../../../data/controllers/peb/peb_detailsdatabarang_controller.dart';
+import '../../../../../../../data/models/peb/peb_detailsdatabarang_response_model.dart';
 
 class PebDetailsDataBarangPage extends StatelessWidget {
   final String serialNumber;
+  final String car;
 
   const PebDetailsDataBarangPage({
     super.key,
-    this.serialNumber = 'Serial 1',
+    required this.car,
+    required this.serialNumber,
   });
 
   @override
@@ -37,7 +41,7 @@ class PebDetailsDataBarangPage extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              serialNumber,
+              '$car - Serial $serialNumber',
               style: GoogleFonts.lato(
                 fontSize: 13,
                 color: AppColors.customColorGray,
@@ -54,60 +58,115 @@ class PebDetailsDataBarangPage extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20, // kanan kiri tetap
-          vertical: 5,   // atas bawah dinaikin dikit
+      body: FutureBuilder(
+        future: PebDetailsDataBarangController.getDetails(
+          car: car,
+          seriBrg: serialNumber,
         ),
-        child: Column(
-          children: [
-            // SEKSI DATA BARANG
-            _buildSectionTitle('Data Barang'),
-            _buildInfoCard([
-              _buildDetailRow('Kode HS / Seri', '4813.10.00 / 1'),
-              _buildDetailRow('Uraian Barang', 'FUTUROLA KING - 109/26 - WOOD BROWN'),
-              _buildDetailRow('Merk', '-'),
-              _buildDetailRow('Type', '-'),
-              _buildDetailRow('Ukuran', '-'),
-              _buildDetailRow('Kode', '900501721'),
-            ]),
+        builder: (context, snapshot) {
 
-            // SEKSI KEMASAN
-            _buildSectionTitle('Kemasan'),
-            _buildInfoCard([
-              _buildDetailRow('Jumlah / Kemasan', '18 / PK - Package'),
-              _buildDetailRow('Netto', '66.72115384615384 Kilogram (KGM)'),
-              _buildDetailRow('Volume', '-'),
-              _buildDetailRow('Negara Asal', 'ID - INDONESIA'),
-              _buildDetailRow('Daerah Asal Barang', '5104 - Kaburiwihihi'),
-            ]),
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            // SEKSI HARGA
-            _buildSectionTitle('Harga'),
-            _buildInfoCard([
-              _buildDetailRow('Harga FOB', '2.358'),
-              _buildDetailRow('Jumlah Satuan', '108'),
-              _buildDetailRow('Jenis Satuan', 'PCE - Piece'),
-              _buildDetailRow('Harga Satuan', '-'),
-            ]),
+          if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
 
-            // SEKSI IZIN KHUSUS
-            _buildSectionTitle('Izin Khusus'),
-            _buildInfoCard([
-              _buildDetailRow('Jenis Izin', '-'),
-              _buildDetailRow('Nomor', '-'),
-              _buildDetailRow('Tanggal', '-'),
-            ]),
+          final data = snapshot.data;
 
-            // SEKSI BEA KELUAR
-            _buildSectionTitle('Bea Keluar'),
-            _buildInfoCard([
-              _buildDetailRow('Jenis Tarif', 'Spesifik'),
-            ]),
+          if (data == null) {
+            return const Center(child: Text("Data tidak ditemukan"));
+          }
 
-            const SizedBox(height: 30),
-          ],
-        ),
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            child: Column(
+              children: [
+
+                // ===== DATA BARANG =====
+                _buildSectionTitle('Data Barang'),
+                _buildInfoCard([
+                  _buildDetailRow(
+                      'Kode HS / Seri',
+                      '${data.hs ?? '-'} / ${data.seriBrg ?? '-'}'),
+                  _buildDetailRow(
+                      'Uraian Barang',
+                      _toTitleCase(data.uraianBarang)),
+                  _buildDetailRow('Merk', _toTitleCase(data.merk)),
+                  _buildDetailRow('Type', _toTitleCase(data.type)),
+                  _buildDetailRow('Ukuran', _toTitleCase(data.size)),
+                  _buildDetailRow('Kode', data.kodeBarang ?? '-'),
+                ]),
+
+                // ===== KEMASAN =====
+                _buildSectionTitle('Kemasan'),
+                _buildInfoCard([
+                  _buildDetailRow(
+                    'Jumlah / Kemasan',
+                    '${data.jumlahKoli ?? '-'} / ${data.jenisKoli ?? '-'} - ${data.uraianJenisKoli ?? ''}',
+                  ),
+                  _buildDetailRow(
+                    'Netto',
+                    '${data.netto ?? '-'} Kilogram (KGM)',
+                  ),
+                  _buildDetailRow(
+                    'Volume',
+                    data.volume?.toString() ?? '-',
+                  ),
+                  _buildDetailRow(
+                    'Negara Asal',
+                    '${data.negaraAsal ?? '-'} - ${data.uraianNegaraAsal ?? '-'}',
+                  ),
+                  _buildDetailRow(
+                    'Daerah Asal Barang',
+                    '${data.daerahAsal ?? '-'} - ${data.uraianDaerahAsal ?? '-'}',
+                  ),
+                ]),
+
+                // ===== HARGA =====
+                _buildSectionTitle('Harga'),
+                _buildInfoCard([
+                  _buildDetailRow(
+                    'Harga FOB',
+                    data.fob?.toString() ?? '-',
+                  ),
+                  _buildDetailRow(
+                    'Jumlah Satuan',
+                    data.jumlahSatuan?.toString() ?? '-',
+                  ),
+                  _buildDetailRow(
+                    'Jenis Satuan',
+                    '${data.jenisSatuan ?? '-'} - ${data.uraianJenisSatuan ?? ''}',
+                  ),
+                  _buildDetailRow(
+                    'Harga Satuan',
+                    '-',
+                  ),
+                ]),
+
+                // ===== IZIN =====
+                _buildSectionTitle('Izin Khusus'),
+                _buildInfoCard([
+                  _buildDetailRow('Jenis Izin', _displayValue(data.kdIzin)),
+                  _buildDetailRow('Nomor', _displayValue(data.noIzin)),
+                  _buildDetailRow('Tanggal', _displayValue(data.tglIzin)),
+                ]),
+
+                // ===== BEA KELUAR =====
+                _buildSectionTitle('Bea Keluar'),
+                _buildInfoCard([
+                  _buildDetailRow(
+                    'Jenis Tarif',
+                    (data.tarifPe ?? 0) == 0 ? 'Tidak Ada' : 'Ada Tarif',
+                  ),
+                ]),
+
+                const SizedBox(height: 30),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -213,5 +272,25 @@ class PebDetailsDataBarangPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _toTitleCase(String? text) {
+    if (text == null || text.isEmpty) return '-';
+
+    return text
+        .toLowerCase()
+        .split(' ')
+        .map((word) {
+      if (word.isEmpty) return '';
+      return word[0].toUpperCase() + word.substring(1);
+    })
+        .join(' ');
+  }
+
+  String _displayValue(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return '-';
+    }
+    return value;
   }
 }
