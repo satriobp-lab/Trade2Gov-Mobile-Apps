@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../../utils/app_colors.dart';
 import '../../../../../../../utils/app_box_decoration.dart';
+import 'package:trade2gov/data/controllers/peb/peb_transaksiekspor_controller.dart';
+import 'package:trade2gov/data/models/peb/peb_transaksiekspor_response_model.dart';
 
 class PebTransaksiEksporDetailsPage extends StatelessWidget {
 
+  final String car;
+
   const PebTransaksiEksporDetailsPage({
     super.key,
+    required this.car,
   });
 
   @override
@@ -52,34 +57,70 @@ class PebTransaksiEksporDetailsPage extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20, // kanan kiri tetap
-          vertical: 5,   // atas bawah dinaikin dikit
-        ),
-        child: Column(
-          children: [
-            // SEKSI Bank DHE
-            _buildSectionTitle('Bank DHE'),
-            _buildInfoCard([
-              _buildDetailRow('Kode', '-'),
-              _buildDetailRow('Uraian', '-'),
-            ]),
+      body: FutureBuilder<PebTransaksiEksporResponseModel?>(
+        future: PebTransaksiEksporController.getTransaksiEkspor(car: car),
+        builder: (context, snapshot) {
 
-            // SEKSI Nilai
-            _buildSectionTitle('Nilai'),
-            _buildInfoCard([
-              _buildDetailRow('Valuta', 'USD'),
-              _buildDetailRow('FOB', '70645'),
-              _buildDetailRow('Nilai Freight', '5.67'),
-              _buildDetailRow('Jenis Asuransi', 'Dalam Negeri'),
-              _buildDetailRow('Nilai Asuransi', '225'),
-              _buildDetailRow('Nilai Maklon', '0'),
-            ]),
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            const SizedBox(height: 30),
-          ],
-        ),
+          if (snapshot.hasError) {
+            return Center(child: Text("Terjadi kesalahan"));
+          }
+
+          final data = snapshot.data;
+
+          if (data == null) {
+            return _buildEmptyState();
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            child: Column(
+              children: [
+
+                /// BANK DHE
+                _buildSectionTitle('Bank DHE'),
+                _buildInfoCard([
+                  _buildDetailRow('Kode', data.kdBank ?? '-'),
+                  _buildDetailRow('Uraian', data.lokBank ?? '-'),
+                ]),
+
+                /// NILAI
+                _buildSectionTitle('Nilai'),
+                _buildInfoCard([
+                  _buildDetailRow(
+                    'Valuta',
+                    '${data.kdVal ?? '-'} - ${data.urKdVal ?? ''}',
+                  ),
+                  _buildDetailRow(
+                    'FOB',
+                    data.fob.toString(),
+                  ),
+                  _buildDetailRow(
+                    'Nilai Freight',
+                    data.freight.toString(),
+                  ),
+                  _buildDetailRow(
+                    'Jenis Asuransi',
+                    data.kdAss == '1'
+                        ? 'Dalam Negeri'
+                        : 'Luar Negeri',
+                  ),
+                  _buildDetailRow(
+                    'Nilai Asuransi',
+                    data.asuransi.toString(),
+                  ),
+                  _buildDetailRow(
+                    'Nilai Maklon',
+                    data.nilMaklon.toString(),
+                  ),
+                ]),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -145,6 +186,55 @@ class PebTransaksiEksporDetailsPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+            Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.customColorRed.withOpacity(0.08),
+              ),
+              child: const Icon(
+                Icons.handshake_rounded,
+                size: 70,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            Text(
+              "Transaksi Ekspor Tidak Ditemukan",
+              style: GoogleFonts.lato(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              "Belum terdapat data transaksi ekspor\nuntuk CAR ini.\nSilakan periksa kembali data Anda.",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.roboto(
+                fontSize: 13,
+                color: AppColors.customColorGray,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

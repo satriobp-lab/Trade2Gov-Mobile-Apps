@@ -205,7 +205,9 @@ class _PebDetailsMenuPageState extends State<PebDetailsMenuPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const PebTransaksiEksporDetailsPage(),
+                builder: (context) => PebTransaksiEksporDetailsPage(
+                  car: widget.car, // 🔥 kirim CAR
+                ),
               ),
             );
             break;
