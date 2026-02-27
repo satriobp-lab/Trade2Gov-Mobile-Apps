@@ -85,7 +85,12 @@ class _PebHistoryListPageState extends State<PebHistoryListPage> {
             );
           }
 
-          final data = snapshot.data ?? [];
+          if (_allData.isEmpty) {
+            _allData = snapshot.data ?? [];
+            _filteredData = _allData;
+          }
+
+          final data = _filteredData;
 
           if (data.isEmpty) {
             return _buildEmptyState();
@@ -324,6 +329,9 @@ class _PebHistoryListPageState extends State<PebHistoryListPage> {
         child: TextField(
           controller: _searchController,
           style: GoogleFonts.roboto(fontSize: 14),
+          onChanged: _applyFlexibleSearch,
+          onSubmitted: _applyFlexibleSearch,
+          textInputAction: TextInputAction.search,
           decoration: InputDecoration(
             hintText: 'Cari nomor dokumen...',
             hintStyle: GoogleFonts.roboto(
@@ -354,6 +362,28 @@ class _PebHistoryListPageState extends State<PebHistoryListPage> {
       return word[0].toUpperCase() + word.substring(1);
     })
         .join(' ');
+  }
+
+  void _applyFlexibleSearch(String keyword) {
+    final query = keyword.trim().toLowerCase();
+
+    setState(() {
+      if (query.isEmpty) {
+        _filteredData = _allData;
+      } else {
+        _filteredData = _allData.where((item) {
+          final noAju = (item.noAju ?? '').toLowerCase();   // Nomor Aju
+          final car = (item.car ?? '').toLowerCase();       // CAR
+          final tglAju = (item.tglAju ?? '').toLowerCase(); // Tanggal Aju
+          final kdKtr = (item.kdKtr ?? '').toLowerCase();   // Kantor (opsional)
+
+          return noAju.contains(query) ||
+              car.contains(query) ||
+              tglAju.contains(query) ||
+              kdKtr.contains(query);
+        }).toList();
+      }
+    });
   }
 }
 

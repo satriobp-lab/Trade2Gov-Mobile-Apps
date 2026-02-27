@@ -4,6 +4,7 @@ import '../data/models/profile_response_model.dart';
 import '../data/models/edec_response_model.dart';
 import '../data/models/pib/pib_historylist_response_model.dart';
 import '../data/models/peb/peb_historylist_response_model.dart';
+import '../data/models/pibk/pibk_historylist_response_model.dart';
 
 class AppCache {
   static List<BillingResponseModel> billingList = [];
@@ -15,4 +16,5 @@ class AppCache {
   //PIB
   static List<PibHistoryListResponseModel> pibHistoryList = [];
   static List<PebHistoryListResponseModel> pebHistoryList = [];
+  static List<PibkHistoryListResponseModel> pibkHistoryList = [];
 }

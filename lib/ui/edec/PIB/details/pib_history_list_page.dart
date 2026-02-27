@@ -20,10 +20,6 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
 
   late Future<List<PibHistoryListResponseModel>> _futurePib;
 
-  final TextEditingController _noAjuController = TextEditingController();
-  final TextEditingController _pibNoController = TextEditingController();
-  final TextEditingController _pibTgController = TextEditingController();
-
   List<PibHistoryListResponseModel> _allData = [];
   List<PibHistoryListResponseModel> _filteredData = [];
 
@@ -79,50 +75,8 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
       ),
       body: Column(
         children: [
-          // 🔍 Search Bar Section
-          Padding(
-            padding: const EdgeInsets.fromLTRB(25, 20, 25, 10),
-            child: Container(
-              decoration: AppBox.primary().copyWith(
-                color: AppColors.whiteColor,
-              ),
-              child: TextField(
-                controller: _searchController,
-                style: GoogleFonts.roboto(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Cari nomor dokumen...',
-                  hintStyle: GoogleFonts.roboto(
-                    color: AppColors.customColorGray.withOpacity(0.5),
-                    fontSize: 14,
-                  ),
-                  prefixIcon: const Icon(
-                    Icons.search_rounded,
-                    color: AppColors.customColorRed,
-                  ),
-                  // ICON ENTER
-                  suffixIcon: IconButton(
-                    icon: const Icon(
-                      Icons.send_outlined,
-                      color: AppColors.customColorRed,
-                    ),
-                    onPressed: () {
-                      final keyword = _searchController.text;
-                      _applyFlexibleSearch(keyword);
-                    },
-                  ),
-
-
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-                textInputAction: TextInputAction.search,
-                onSubmitted: (value) {
-                  // Enter dari keyboard juga jalan
-                  _applyFlexibleSearch(value);
-                },
-              ),
-            ),
-          ),
+          /// ✅ PAKAI SEARCH WIDGET DI SINI
+          _buildSearchBar(),
 
           // 📄 List of History
           Expanded(
@@ -295,39 +249,48 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
         _filteredData = _allData;
       } else {
         _filteredData = _allData.where((item) {
-          final noAjuMatch =
-          item.noAju.toLowerCase().contains(query);
+          final noAju = item.noAju.toLowerCase();
+          final pibNo = (item.pibNo ?? '').toLowerCase();
+          final pibTg = (item.pibTg ?? '').toLowerCase();
+          final tglAju = (item.tglAju ?? '').toLowerCase();
 
-          final pibNoMatch =
-          (item.pibNo ?? '').toLowerCase().contains(query);
-
-          final pibTgMatch =
-          (item.pibTg ?? '').toLowerCase().contains(query);
-
-          return noAjuMatch || pibNoMatch || pibTgMatch;
+          return noAju.contains(query) ||
+              pibNo.contains(query) ||
+              pibTg.contains(query) ||
+              tglAju.contains(query);
         }).toList();
       }
     });
   }
 
 
-  Widget _buildSearchField(
-      TextEditingController controller, String hint) {
-    return Container(
-      decoration: AppBox.primary().copyWith(
-        color: AppColors.whiteColor,
-      ),
-      child: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          hintText: hint,
-          prefixIcon: const Icon(
-            Icons.search_rounded,
-            color: AppColors.customColorRed,
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(25, 20, 25, 10),
+      child: Container(
+        decoration: AppBox.primary().copyWith(
+          color: AppColors.whiteColor,
+        ),
+        child: TextField(
+          controller: _searchController,
+          style: GoogleFonts.roboto(fontSize: 14),
+          onChanged: _applyFlexibleSearch,
+          onSubmitted: _applyFlexibleSearch,
+          textInputAction: TextInputAction.search,
+          decoration: InputDecoration(
+            hintText: 'Cari nomor dokumen...',
+            hintStyle: GoogleFonts.roboto(
+              color: AppColors.customColorGray.withOpacity(0.5),
+              fontSize: 14,
+            ),
+            prefixIcon: const Icon(
+              Icons.search_rounded,
+              color: AppColors.customColorRed,
+            ),
+            border: InputBorder.none,
+            contentPadding:
+            const EdgeInsets.symmetric(vertical: 12),
           ),
-          border: InputBorder.none,
-          contentPadding:
-          const EdgeInsets.symmetric(vertical: 12),
         ),
       ),
     );
@@ -346,5 +309,5 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
     })
         .join(' ');
   }
-
 }
+

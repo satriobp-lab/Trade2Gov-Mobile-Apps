@@ -16,26 +16,6 @@ class PebContainerDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Mock data untuk daftar Container PEB
-    final List<Map<String, String>> containerList = [
-      {
-        'no_cont': 'ONEU-5267681',
-        'seri': 'ONEU5267681',
-        'ukuran': '40 FEET',
-        'tipe': 'FCL',
-        'stuff': '-',
-        'partof': '-',
-      },
-      {
-        'no_cont': 'TGBU-1234567',
-        'seri': 'TGBU1234567',
-        'ukuran': '20 FEET',
-        'tipe': 'LCL',
-        'stuff': '-',
-        'partof': '-',
-      },
-    ];
-
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
       appBar: AppBar(
@@ -61,7 +41,7 @@ class PebContainerDetailsPage extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '301019-9CB5DF-20251007-000009',
+              car,
               style: GoogleFonts.lato(
                 fontSize: 13,
                 color: AppColors.customColorGray,
