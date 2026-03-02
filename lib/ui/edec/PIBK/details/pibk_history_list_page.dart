@@ -74,6 +74,14 @@ class _PibkHistoryListPageState extends State<PibkHistoryListPage> {
             fontSize: 22,
           ),
         ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: AppColors.customColorRed.withOpacity(0.3),
+            height: 1.0,
+            margin: const EdgeInsets.symmetric(horizontal: 25),
+          ),
+        ),
       ),
       body: FutureBuilder<List<PibkHistoryListResponseModel>>(
         future: _futurePibk,
@@ -194,7 +202,9 @@ class _PibkHistoryListPageState extends State<PibkHistoryListPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const PibkDetailsMenuPage(),
+                    builder: (context) => PibkDetailsMenuPage(
+                      car: item.car,
+                    ),
                   ),
                 );
               },

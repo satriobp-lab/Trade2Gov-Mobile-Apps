@@ -13,7 +13,12 @@ import 'pungutan/pibk_pungutan_details_page.dart';
 import 'respon/pibk_respon_details_page.dart';
 
 class PibkDetailsMenuPage extends StatefulWidget {
-  const PibkDetailsMenuPage({super.key});
+  final String car;
+
+  const PibkDetailsMenuPage({
+    super.key,
+    required this.car,
+  });
 
   @override
   State<PibkDetailsMenuPage> createState() => _PibkDetailsMenuPageState();
@@ -74,7 +79,7 @@ class _PibkDetailsMenuPageState extends State<PibkDetailsMenuPage> {
             ),
             const SizedBox(height: 4),
             Text(
-              '070100456789',
+              widget.car,
               style: GoogleFonts.lato(
                 fontSize: 13,
                 color: AppColors.customColorGray,
@@ -137,7 +142,9 @@ class _PibkDetailsMenuPageState extends State<PibkDetailsMenuPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const PibkHeaderDetailsPage(),
+                builder: (context) => PibkHeaderDetailsPage(
+                  car: widget.car,
+                ),
               ),
             );
             break;
@@ -155,7 +162,9 @@ class _PibkDetailsMenuPageState extends State<PibkDetailsMenuPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const PibkDokumenDetailsPage(),
+                builder: (context) => PibkDokumenDetailsPage(
+                  car: widget.car,
+                ),
               ),
             );
             break;

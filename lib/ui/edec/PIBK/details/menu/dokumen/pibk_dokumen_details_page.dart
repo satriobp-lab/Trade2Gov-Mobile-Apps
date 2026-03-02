@@ -2,9 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
+import 'package:trade2gov/data/controllers/pibk/pibk_dokumen_controller.dart';
+import 'package:trade2gov/data/models/pibk/pibk_dokumen_response_model.dart';
 
-class PibkDokumenDetailsPage extends StatelessWidget {
-  const PibkDokumenDetailsPage({super.key});
+class PibkDokumenDetailsPage extends StatefulWidget {
+  final String car;
+
+  const PibkDokumenDetailsPage({
+    super.key,
+    required this.car,
+  });
+
+  @override
+  State<PibkDokumenDetailsPage> createState() =>
+      _PibkDokumenDetailsPageState();
+}
+
+class _PibkDokumenDetailsPageState
+    extends State<PibkDokumenDetailsPage> {
+
+  late Future<List<PibkDokumenResponseModel>> _futureDokumen;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureDokumen =
+        PibkDokumenController.getPibkDokumen(widget.car);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +73,7 @@ class PibkDokumenDetailsPage extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '070100456789',
+              widget.car,
               style: GoogleFonts.lato(
                 fontSize: 13,
                 color: AppColors.customColorGray,
@@ -66,74 +90,94 @@ class PibkDokumenDetailsPage extends StatelessWidget {
           ),
         ),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        itemCount: dokumenList.length,
-        itemBuilder: (context, index) {
-          final item = dokumenList[index];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: AppBox.primary(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Bagian Atas: Icon dan Judul Sejajar
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 45,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          color: AppColors.customColorRed.withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.description_rounded,
-                          color: AppColors.customColorRed,
-                          size: 22,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          '${item['kode']} - ${item['nama']}',
-                          style: GoogleFonts.lato(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.customColorRed,
+      body: FutureBuilder<List<PibkDokumenResponseModel>>(
+        future: _futureDokumen,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
+
+          final dokumenList = snapshot.data ?? [];
+
+          if (dokumenList.isEmpty) {
+            return const Center(
+              child: Text("Tidak ada dokumen"),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            itemCount: dokumenList.length,
+            itemBuilder: (context, index) {
+              final item = dokumenList[index];
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: AppBox.primary(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 45,
+                            height: 45,
+                            decoration: BoxDecoration(
+                              color: AppColors.customColorRed.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.description_rounded,
+                              color: AppColors.customColorRed,
+                              size: 22,
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              '${item.kode} - ${item.jenis}',
+                              style: GoogleFonts.lato(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.customColorRed,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Container(
+                        height: 1.2,
+                        color:
+                        AppColors.customColorRed.withOpacity(0.25),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                        children: [
+                          _buildDetailRow(
+                              'Nomor Dokumen', item.nomor),
+                          const SizedBox(height: 8),
+                          _buildDetailRow(
+                              'Tanggal Dokumen', item.tanggal),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-
-                // Garis Divider ColorCustomRed
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    height: 1.2,
-                    color: AppColors.customColorRed.withOpacity(0.25),
-                  ),
-                ),
-
-
-                // Bagian Bawah: Detail Dokumen
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildDetailRow('Nomor Dokumen', item['no_dok'] ?? ''),
-                      const SizedBox(height: 8),
-                      _buildDetailRow('Tanggal Dokumen', item['tgl_dok'] ?? ''),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
           );
         },
       ),

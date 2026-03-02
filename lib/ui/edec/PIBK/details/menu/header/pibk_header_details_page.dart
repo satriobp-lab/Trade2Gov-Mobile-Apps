@@ -2,9 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
+import 'package:trade2gov/data/controllers/pibk/pibk_header_controller.dart';
+import 'package:trade2gov/data/models/pibk/pibk_header_response_model.dart';
 
-class PibkHeaderDetailsPage extends StatelessWidget {
-  const PibkHeaderDetailsPage({super.key});
+
+class PibkHeaderDetailsPage extends StatefulWidget {
+  final String car;
+
+  const PibkHeaderDetailsPage({super.key, required this.car});
+
+  @override
+  State<PibkHeaderDetailsPage> createState() =>
+      _PibkHeaderDetailsPageState();
+}
+
+class _PibkHeaderDetailsPageState
+    extends State<PibkHeaderDetailsPage> {
+
+  late Future<PibkHeaderResponseModel?> _futureHeader;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureHeader =
+        PibkHeaderController.getHeader(widget.car);
+  }
+
+  String safe(dynamic value) {
+    if (value == null || value.toString().isEmpty) {
+      return "-";
+    }
+    return value.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +61,7 @@ class PibkHeaderDetailsPage extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '070100456789',
+              widget.car,
               style: GoogleFonts.lato(
                 fontSize: 13,
                 color: AppColors.customColorGray,
@@ -50,77 +79,191 @@ class PibkHeaderDetailsPage extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20, // kanan kiri tetap
-          vertical: 5,   // atas bawah dinaikin dikit
-        ),
-        child: Column(
-          children: [
-            _buildSectionTitle('Data PIBK'),
-            _buildInfoCard([
-              _buildDetailRow('Kantor Pabean', '070100 - KPPBC Tanjung Perak'),
-              _buildDetailRow('No Aju', '070100456789'),
-              _buildDetailRow('Jenis PIB', '-'),
-              _buildDetailRow('Jenis Impor', '-'),
-              _buildDetailRow('Cara Pembayaran', '-'),
-            ]),
+      body: FutureBuilder<PibkHeaderResponseModel?>(
+        future: _futureHeader,
+        builder: (context, snapshot) {
 
-            _buildSectionTitle('Pengirim'),
-            _buildInfoCard([
-              _buildDetailRow('Nama', '-'),
-              _buildDetailRow('Alamat', '-'),
-              _buildDetailRow('Negara', '-'),
-            ]),
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            _buildSectionTitle('Penjual'),
-            _buildInfoCard([
-              _buildDetailRow('Nama', '-'),
-              _buildDetailRow('Alamat', '-'),
-              _buildDetailRow('Negara', '-'),
-            ]),
+          if (!snapshot.hasData || snapshot.data == null) {
+            return const Center(child: Text("Data tidak ditemukan"));
+          }
 
-            _buildSectionTitle('Importir'),
-            _buildInfoCard([
-              _buildDetailRow('Identitas', '(NPWP 12 Digit)'),
-              _buildDetailRow('Nama', '-'),
-              _buildDetailRow('Alamat', 'Jalan Raya disana II'),
-              _buildDetailRow('No API', '-'),
-              _buildDetailRow('Status', '-'),
-            ]),
+          final data = snapshot.data!;
+          final header = data.header;
 
-            _buildSectionTitle('Pemilik Barang'),
-            _buildInfoCard([
-              _buildDetailRow('Identitas', '-'),
-              _buildDetailRow('Nama', '-'),
-              _buildDetailRow('Alamat', '-'),
-            ]),
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 5,
+            ),
+            child: Column(
+              children: [
 
-            _buildSectionTitle('PPJK'),
-            _buildInfoCard([
-              _buildDetailRow('NPWP', '098765432109876'),
-              _buildDetailRow('Nama', 'Test Ecustoms'),
-              _buildDetailRow('Alamat', 'Jl. Raya Disana II'),
-              _buildDetailRow('NP-PPJK', '123'),
-            ]),
+                /// =======================
+                /// DATA PIBK
+                /// =======================
+                _buildSectionTitle('Data PIBK'),
+                _buildInfoCard([
+                  _buildDetailRow(
+                    'Kantor Pabean',
+                    "${safe(header["KDKPBC"])} - ${safe(header["URKPBC"])}", keepUppercase: true,
+                  ),
+                  _buildDetailRow(
+                    'No Aju',
+                    safe(header["CAR"]),
+                    keepUppercase: true,
+                  ),
 
-            _buildSectionTitle('Data Pengangkutan'),
-            _buildInfoCard([
-              _buildDetailRow('Cara Pengangkutan', 'Laut'),
-              _buildDetailRow('Nama Sarana Pengangkut', '-'),
-              _buildDetailRow('Nomor Voyage/Flight', '-'),
-              _buildDetailRow('Bendera Pengangkut', 'JP - Japan'),
-              _buildDetailRow('Perkiraan Tanggal Tiba', '2026-01-21'),
-              _buildDetailRow('Pelabuhan Muat', 'JPUKB - Kobe'),
-              _buildDetailRow('Pelabuhan Transit', '-'),
-              _buildDetailRow('Pelabuhan Tujuan', 'IDTPP - Tanjung Priok'),
-              _buildDetailRow('Pemenuhan Persyaratan / Fasilitas Impor', '-'),
-              _buildDetailRow('Tempat Penimbunan', '-'),
-            ]),
+                  _buildDetailRow(
+                    'Jenis PIB',
+                    header["JNPIB"] != null
+                        ? safe(data.jnPib[header["JNPIB"].toString()])
+                        : "-",
+                  ),
 
-            const SizedBox(height: 30),
-          ],
-        ),
+                  _buildDetailRow(
+                    'Jenis Impor',
+                    header["JNIMP"] != null
+                        ? safe(data.jnImp[header["JNIMP"].toString()])
+                        : "-",
+                  ),
+
+                  _buildDetailRow(
+                    'Cara Pembayaran',
+                    header["CRBYR"] != null
+                        ? safe(data.crByr[header["CRBYR"].toString()])
+                        : "-",
+                  ),
+                ]),
+
+                /// =======================
+                /// PENGIRIM
+                /// =======================
+                _buildSectionTitle('Pengirim'),
+                _buildInfoCard([
+                  _buildDetailRow('Nama', safe(header["PASOKNAMA"])),
+                  _buildDetailRow('Alamat', safe(header["PASOKALMT"])),
+                  _buildDetailRow(
+                    'Negara',
+                    safe(header["PASOKNEG"]),
+                    keepUppercase: true,
+                  ),
+                ]),
+
+                /// =======================
+                /// PENJUAL
+                /// =======================
+                _buildSectionTitle('Penjual'),
+                _buildInfoCard([
+                  _buildDetailRow('Nama', safe(header["PENJNAMA"])),
+                  _buildDetailRow('Alamat', safe(header["PENJALMT"])),
+                  _buildDetailRow(
+                    'Negara',
+                    safe(header["PASOKNEG"]),
+                    keepUppercase: true,
+                  ),
+                ]),
+
+                /// =======================
+                /// IMPORTIR
+                /// =======================
+                _buildSectionTitle('Importir'),
+                _buildInfoCard([
+                  // _buildDetailRow(
+                  //   'Identitas',
+                  //   header["IMPID"] != null
+                  //       ? (() {
+                  //     int index =
+                  //         int.tryParse(header["IMPID"].toString()) ?? 0;
+                  //     if (index < data.impId.length) {
+                  //       return data.impId[index].toString();
+                  //     }
+                  //     return "-";
+                  //   })()
+                  //       : "-",
+                  // ),
+                  _buildDetailRow('Identitas', safe(header["IMPNPWP"])),
+                  _buildDetailRow('Nama', safe(header["IMPNAMA"])),
+                  _buildDetailRow('Alamat', safe(header["IMPALMT"])),
+                  _buildDetailRow('No API', safe(header["APINO"])),
+                  _buildDetailRow('Status', safe(header["IMPSTATUS"])),
+                ]),
+
+                /// =======================
+                /// PEMILIK BARANG
+                /// =======================
+                _buildSectionTitle('Pemilik Barang'),
+                _buildInfoCard([
+                  _buildDetailRow('Identitas', safe(header["INDID"])),
+                  _buildDetailRow('Nama', safe(header["INDNAMA"])),
+                  _buildDetailRow('Alamat', safe(header["INDALMT"])),
+                ]),
+
+                /// =======================
+                /// PPJK
+                /// =======================
+                _buildSectionTitle('PPJK'),
+                _buildInfoCard([
+                  _buildDetailRow('NPWP', safe(header["PPJKNPWP"])),
+                  _buildDetailRow('Nama', safe(header["PPJKNAMA"])),
+                  _buildDetailRow('Alamat', safe(header["PPJKALMT"])),
+                  _buildDetailRow('NP-PPJK', safe(header["PPJKNO"])),
+                ]),
+
+                /// =======================
+                /// DATA PENGANGKUTAN
+                /// =======================
+                _buildSectionTitle('Data Pengangkutan'),
+                _buildInfoCard([
+                  _buildDetailRow(
+                    'Cara Pengangkutan',
+                    header["MODA"] != null
+                        ? safe(data.moda[header["MODA"].toString()])
+                        : "-",
+                  ),
+                  _buildDetailRow(
+                      'Nama Sarana Pengangkut',
+                      safe(header["ANGKUTNAMA"])),
+                  _buildDetailRow(
+                      'Nomor Voyage/Flight',
+                      safe(header["ANGKUTNO"])),
+                  _buildDetailRow(
+                    'Bendera Pengangkut',
+                    safe(header["URANGKUTFL"] ?? header["ANGKUTFL"]),
+                    keepUppercase: true,
+                  ),
+                  _buildDetailRow(
+                      'Perkiraan Tanggal Tiba',
+                      safe(header["TGTIBA"])),
+                  _buildDetailRow(
+                    'Pelabuhan Muat',
+                    safe(header["PELMUATUR"] ?? header["PELMUAT"]),
+                  ),
+                  _buildDetailRow(
+                      'Pelabuhan Transit',
+                      safe(header["PELTRANSIT"])),
+                  _buildDetailRow(
+                    'Pelabuhan Tujuan',
+                    safe(header["PELBKRUR"] ?? header["PELBKR"]),
+                  ),
+                  _buildDetailRow(
+                    'Pemenuhan Persyaratan / Fasilitas Impor',
+                    safe(header["URKDFAS"] ?? header["KDFAS"]),
+                  ),
+                  _buildDetailRow(
+                    'Tempat Penimbunan',
+                    safe(header["URTMPTBN"] ?? header["TMPTBN"]),
+                  ),
+                ]),
+
+                const SizedBox(height: 30),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -151,7 +294,11 @@ class PibkHeaderDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(
+      String label,
+      String value, {
+        bool keepUppercase = false,
+      }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Column(
@@ -168,16 +315,21 @@ class PibkHeaderDetailsPage extends StatelessWidget {
           const SizedBox(height: 4),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: const EdgeInsets.symmetric(
+                horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: const Color(0xFFF9F9F9),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: AppColors.customColorRed.withOpacity(0.1),
+                color: AppColors.customColorRed
+                    .withOpacity(0.1),
               ),
             ),
             child: Text(
-              value,
+              _formatValue(
+                value,
+                keepUppercase: keepUppercase,
+              ),
               style: GoogleFonts.roboto(
                 fontSize: 12,
                 color: AppColors.customColorGray,
@@ -187,5 +339,43 @@ class PibkHeaderDetailsPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatValue(String? value,
+      {bool keepUppercase = false}) {
+    if (value == null || value.trim().isEmpty) {
+      return '-';
+    }
+
+    String result = value.trim();
+
+    // ✅ Hilangkan prefix angka seperti "1 - Laut"
+    result = result.replaceFirst(
+      RegExp(r'^\d+\s*-\s*'),
+      '',
+    );
+
+    // ✅ Jika mau tetap uppercase (kantor, negara, dll)
+    if (keepUppercase) {
+      return result.toUpperCase();
+    }
+
+    // ✅ Format Title Case
+    final exceptions = ['PT', 'NPWP', 'API', 'CV'];
+
+    result = result
+        .toLowerCase()
+        .split(' ')
+        .map((word) {
+      if (word.isEmpty) return '';
+      if (exceptions.contains(word.toUpperCase())) {
+        return word.toUpperCase();
+      }
+      return word[0].toUpperCase() +
+          word.substring(1);
+    })
+        .join(' ');
+
+    return result;
   }
 }

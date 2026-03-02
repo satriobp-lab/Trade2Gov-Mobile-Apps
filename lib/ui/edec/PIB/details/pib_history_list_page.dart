@@ -249,15 +249,19 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
         _filteredData = _allData;
       } else {
         _filteredData = _allData.where((item) {
-          final noAju = item.noAju.toLowerCase();
-          final pibNo = (item.pibNo ?? '').toLowerCase();
-          final pibTg = (item.pibTg ?? '').toLowerCase();
-          final tglAju = (item.tglAju ?? '').toLowerCase();
+          final noAju = (item.noAju ?? '').toLowerCase();   // Nomor Aju
+          final car = (item.car ?? '').toLowerCase();       // CAR
+          final pibNo = (item.pibNo ?? '').toLowerCase();   // Nomor Daftar PIB
+          final pibTg = (item.pibTg ?? '').toLowerCase();   // Tanggal Daftar
+          final tglAju = (item.tglAju ?? '').toLowerCase(); // Tanggal Aju
+          final kdKpbc = (item.kdKpbc ?? '').toLowerCase(); // Kantor
 
           return noAju.contains(query) ||
+              car.contains(query) ||
               pibNo.contains(query) ||
               pibTg.contains(query) ||
-              tglAju.contains(query);
+              tglAju.contains(query) ||
+              kdKpbc.contains(query);
         }).toList();
       }
     });

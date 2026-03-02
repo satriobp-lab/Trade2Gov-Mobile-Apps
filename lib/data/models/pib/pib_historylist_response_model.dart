@@ -8,6 +8,7 @@ class PibHistoryListResponseModel {
   final String? indNama;
   final int jmBrg;
   final int jmCont;
+  final String? car; // 🔥 TAMBAHKAN INI
 
   PibHistoryListResponseModel({
     required this.noAju,
@@ -19,6 +20,7 @@ class PibHistoryListResponseModel {
     required this.indNama,
     required this.jmBrg,
     required this.jmCont,
+    this.car,
   });
 
   factory PibHistoryListResponseModel.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,7 @@ class PibHistoryListResponseModel {
       indNama: json['INDNAMA'],
       jmBrg: json['JMBRG'] ?? 0,
       jmCont: json['JMCONT'] ?? 0,
+      car: json['CAR'],
     );
   }
 }
