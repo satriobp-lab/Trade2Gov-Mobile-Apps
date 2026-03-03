@@ -139,6 +139,7 @@ class PibkListDataBarangPage extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => PibkDetailsDataBarangPage(
+                              car: car,
                               serialNumber: item.serial.toString(),
                             ),
                           ),

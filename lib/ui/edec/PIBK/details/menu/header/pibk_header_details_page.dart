@@ -88,7 +88,7 @@ class _PibkHeaderDetailsPageState
           }
 
           if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text("Data tidak ditemukan"));
+            return _buildEmptyState();
           }
 
           final data = snapshot.data!;
@@ -377,5 +377,55 @@ class _PibkHeaderDetailsPageState
         .join(' ');
 
     return result;
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+            // 🔴 Circle Background
+            Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.customColorRed.withOpacity(0.08),
+              ),
+              child: Icon(
+                Icons.search_off_rounded,
+                size: 70,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            Text(
+              "Data Header Tidak Ditemukan",
+              style: GoogleFonts.lato(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              "Detail header untuk CAR ini belum tersedia.\nSilakan pastikan nomor dokumen benar.",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.roboto(
+                fontSize: 13,
+                color: AppColors.customColorGray,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
