@@ -175,7 +175,9 @@ class _PibkDetailsMenuPageState extends State<PibkDetailsMenuPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const PibkHargaDetailsPage(),
+                builder: (context) => PibkHargaDetailsPage(
+                  car: widget.car, // 🔥 kirim CAR
+                ),
               ),
             );
             break;
