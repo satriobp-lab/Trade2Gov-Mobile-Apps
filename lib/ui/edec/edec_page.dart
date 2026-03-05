@@ -11,6 +11,7 @@ import 'PIB/summary/pib_summary_page.dart';
 import 'PEB/summary/peb_summary_page.dart'; // Import halaman PEB baru
 import 'PKBE/summary/pkbe_summary_page.dart';
 import 'PIBK/summary/pibk_summary_page.dart';
+import 'TPB/summary/tpb_summary_page.dart';
 import 'package:flutter/cupertino.dart';
 import '../../data/controllers/edec_controller.dart';
 import '../../core/app_cache.dart';
@@ -39,6 +40,7 @@ class _EdecPageState extends State<EdecPage> {
     'PEB': const Color(0xFFF4A261),
     'PKBE': const Color(0xFF2A9D8F),
     'PIBK': const Color(0xFF264653),
+    'TPB': const Color(0xFF6A4C93),
   };
 
   @override
@@ -57,6 +59,7 @@ class _EdecPageState extends State<EdecPage> {
           'PEB': data.peb,
           'PKBE': data.pkbe,
           'PIBK': data.pibk,
+          'TPB': 187,
         };
         isLoading = false;
       });
@@ -322,6 +325,13 @@ class _EdecPageState extends State<EdecPage> {
                             ),
                           ),
                         );
+                      } else if (title == 'TPB') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const TpbSummaryPage(),
+                          ),
+                        );
                       }
                     },
                     style: OutlinedButton.styleFrom(
@@ -365,6 +375,12 @@ class _EdecPageState extends State<EdecPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => const PibkHistoryListPage()),
+                        );
+                      } else if (title == 'TPB') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('TPB Details masih dalam pengembangan'),
+                          ),
                         );
                       }
                     },

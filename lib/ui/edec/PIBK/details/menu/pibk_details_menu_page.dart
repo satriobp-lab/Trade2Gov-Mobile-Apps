@@ -269,18 +269,50 @@ class _PibkDetailsMenuPageState extends State<PibkDetailsMenuPage> {
             children: [
               ListTile(
                 leading: const Icon(Icons.picture_as_pdf),
-                title: const Text('Print PIBK'),
+                title: const Text('Print PIB'),
                 onTap: () {
-                  Navigator.pop(context);
-                  // open pdf
+                  Navigator.pop(context); // tutup bottom sheet
+
+                  Future.delayed(const Duration(milliseconds: 200), () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: AppColors.customColorRed,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        content: const Text(
+                          'Fitur Print sedang dalam tahap pengembangan',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  });
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.folder_open),
                 title: const Text('Buka Folder Dokumen'),
                 onTap: () {
-                  Navigator.pop(context);
-                  // open folder
+                  Navigator.pop(context); // tutup bottom sheet
+
+                  Future.delayed(const Duration(milliseconds: 200), () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: AppColors.customColorRed,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        content: const Text(
+                          'Fitur Buka Folder sedang dalam tahap pengembangan',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  });
                 },
               ),
             ],

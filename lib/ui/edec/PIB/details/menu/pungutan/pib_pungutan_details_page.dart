@@ -2,82 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
+import 'package:trade2gov/data/controllers/pib/pib_pungutan_controller.dart';
+import 'package:trade2gov/data/models/pib/pib_pungutan_response_model.dart';
 
 class PibPungutanDetailsPage extends StatelessWidget {
-  const PibPungutanDetailsPage({super.key});
+  final String car;
+
+  const PibPungutanDetailsPage({
+    super.key,
+    required this.car,
+  });
 
   @override
   Widget build(BuildContext context) {
     // Struktur data pungutan
-    final List<Map<String, dynamic>> pungutanList = [
-      {
-        'title': 'BM',
-        'data': {
-          'Dibayar': '-',
-          'Ditanggung Pemerintah': '-',
-          'Ditunda': '-',
-          'Tidak Dipungut': '-',
-          'Dibebaskan': '-',
-          'Telah Dilunasi': '-',
-        }
-      },
-      {
-        'title': 'BM KITE',
-        'data': {
-          'Dibayar': '-',
-          'Ditanggung Pemerintah': '37.298.000',
-          'Ditunda': '-',
-          'Tidak Dipungut': '-',
-          'Dibebaskan': '-',
-          'Telah Dilunasi': '-',
-        }
-      },
-      {
-        'title': 'BM Anti Dumming',
-        'data': {
-          'Dibayar': '-',
-          'Ditanggung Pemerintah': '-',
-          'Ditunda': '-',
-          'Tidak Dipungut': '-',
-          'Dibebaskan': '-',
-          'Telah Dilunasi': '-',
-        }
-      },
-      {
-        'title': 'PPN',
-        'data': {
-          'Dibayar': '-',
-          'Ditanggung Pemerintah': '-',
-          'Ditunda': '-',
-          'Tidak Dipungut': '-',
-          'Dibebaskan': '-',
-          'Telah Dilunasi': '-',
-        }
-      },
-      {
-        'title': 'Pph',
-        'data': {
-          'Dibayar': '-',
-          'Ditanggung Pemerintah': '-',
-          'Ditunda': '-',
-          'Tidak Dipungut': '-',
-          'Dibebaskan': '-',
-          'Telah Dilunasi': '-',
-        }
-      },
-      {
-        'title': 'Total',
-        'isTotal': true,
-        'data': {
-          'Dibayar': '350.798.000',
-          'Ditanggung Pemerintah': '37.298.000',
-          'Ditunda': '-',
-          'Tidak Dipungut': '-',
-          'Dibebaskan': '-',
-          'Telah Dilunasi': '-',
-        }
-      },
-    ];
+    final Map<String, String> pungutanCodeMap = {
+      "1": "BEA MASUK",
+      "10": "BMTP",
+      "11": "BMIM",
+      "12": "BMPB",
+      "2": "PPN",
+      "3": "PPNBM",
+      "4": "PPH",
+      "5": "CUKAI TEMBAKAU",
+      "6": "MMEA",
+      "7": "ETIL ALKOHOL",
+      "8": "BM KITE",
+      "9": "BMAD",
+    };
 
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
@@ -121,15 +73,85 @@ class PibPungutanDetailsPage extends StatelessWidget {
           ),
         ),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        itemCount: pungutanList.length,
-        itemBuilder: (context, index) {
-          final item = pungutanList[index];
-          return _buildPungutanCard(
-            title: item['title'],
-            data: item['data'],
-            isTotal: item['isTotal'] ?? false,
+      body: FutureBuilder<PibPungutanResponseModel?>(
+        future: PibPungutanController.getPungutan(car.replaceAll('-', '')),
+        builder: (context, snapshot) {
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
+
+          final response = snapshot.data;
+
+          if (response == null) {
+            return const Center(child: Text("Tidak ada data"));
+          }
+
+          // 🔥 mapping resmi
+          final Map<String, String> pungutanCodeMap = {
+            "1": "BEA MASUK",
+            "10": "BMTP",
+            "11": "BMIM",
+            "12": "BMPB",
+            "2": "PPN",
+            "3": "PPNBM",
+            "4": "PPH",
+            "5": "CUKAI TEMBAKAU",
+            "6": "MMEA",
+            "7": "ETIL ALKOHOL",
+            "8": "BM KITE",
+            "9": "BMAD",
+          };
+
+          final List<Map<String, dynamic>> pungutanList = [];
+
+          for (final entry in pungutanCodeMap.entries) {
+            final code = entry.key;
+            final title = entry.value;
+
+            pungutanList.add({
+              'title': title,
+              'data': response.getByCode(code)?.toUiMap() ?? {
+                'Dibayar': '-',
+                'Ditanggung Pemerintah': '-',
+                'Ditunda': '-',
+                'Tidak Dipungut': '-',
+                'Dibebaskan': '-',
+                'Telah Dilunasi': '-',
+              }
+            });
+          }
+
+          // TOTAL
+          pungutanList.add({
+            'title': 'TOTAL',
+            'isTotal': true,
+            'data': response.getByCode('TOTAL')?.toUiMap() ?? {
+              'Dibayar': '-',
+              'Ditanggung Pemerintah': '-',
+              'Ditunda': '-',
+              'Tidak Dipungut': '-',
+              'Dibebaskan': '-',
+              'Telah Dilunasi': '-',
+            }
+          });
+
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            itemCount: pungutanList.length,
+            itemBuilder: (context, index) {
+              final item = pungutanList[index];
+
+              return _buildPungutanCard(
+                title: item['title'] as String,
+                data: Map<String, String>.from(item['data'] as Map),
+                isTotal: (item['isTotal'] ?? false) as bool,
+              );
+            },
           );
         },
       ),
