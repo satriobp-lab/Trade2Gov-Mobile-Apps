@@ -7,6 +7,7 @@ import '../../data/controllers/billing_controller.dart';
 import '../../data/controllers/mailbox_controller.dart';
 import '../../data/controllers/profile_controller.dart';
 import '../../core/app_cache.dart';
+import '../landing/landing_page.dart';
 
 class AppLoaderPage extends StatefulWidget {
   const AppLoaderPage({super.key});
@@ -26,35 +27,48 @@ class _AppLoaderPageState extends State<AppLoaderPage> {
 
   Future<void> _init() async {
     final storage = SecureStorageService();
+    final token = await storage.getToken();
     final name = await storage.getUserName();
 
     setState(() {
       _name = name ?? '';
     });
 
-    try {
-      // 🔥 PRELOAD BILLING
-      final billing = await BillingController.fetchBilling();
-      AppCache.billingList = billing;
+    if (token != null && token.isNotEmpty) {
+      try {
+        // PRELOAD BILLING
+        final billing = await BillingController.fetchBilling();
+        AppCache.billingList = billing;
 
-      // 🔥 PRELOAD MAILBOX
-      final mailbox = await MailboxController.fetchMailbox();
-      AppCache.mailboxList = mailbox;
+        // PRELOAD MAILBOX
+        final mailbox = await MailboxController.fetchMailbox();
+        AppCache.mailboxList = mailbox;
 
-      // 🔥 PRELOAD PROFILE
-      final profile = await ProfileController.fetchProfile();
-      AppCache.profile = profile;
+        // PRELOAD PROFILE
+        final profile = await ProfileController.fetchProfile();
+        AppCache.profile = profile;
 
-    } catch (e) {
-      debugPrint("Preload error: $e");
+      } catch (e) {
+        debugPrint("Preload error: $e");
+      }
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const MainNavigation()),
+      );
+
+    } else {
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LandingPage()),
+      );
+
     }
-
-    if (!mounted) return;
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const MainNavigation()),
-    );
   }
 
   @override

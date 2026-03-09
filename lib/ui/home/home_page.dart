@@ -14,8 +14,8 @@ import '../../data/controllers/billing_controller.dart';
 import '../../data/models/billing_response_model.dart';
 import '../../core/app_cache.dart';
 import '../../data/models/profile_response_model.dart';
-
-
+import '../../ui/splash/app_loader_page.dart';
+import 'package:flutter/services.dart';
 
 class HomePage extends StatefulWidget {
   final VoidCallback onOpenInformation;
@@ -51,6 +51,8 @@ class _HomePageState extends State<HomePage> {
   //profile drawer
   ProfileResponseModel? _profile;
 
+  DateTime? _lastBackPressed;
+
   @override
   void initState() {
     super.initState();
@@ -71,7 +73,65 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final bool isActive = _activeProduct == 0;
 
-    return Scaffold(
+    return WillPopScope(
+        onWillPop: () async {
+          final now = DateTime.now();
+
+          // BACK PERTAMA
+          if (_lastBackPressed == null ||
+              now.difference(_lastBackPressed!) > const Duration(seconds: 2)) {
+
+            _lastBackPressed = now;
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "Tekan sekali lagi untuk keluar",
+                  style: GoogleFonts.lato(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                backgroundColor: AppColors.customColorRed,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+
+            return false;
+          }
+
+          // BACK KEDUA → KONFIRMASI
+          final shouldExit = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text("Keluar Aplikasi"),
+              content: const Text("Apakah anda yakin ingin keluar?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text("Yes"),
+                ),
+              ],
+            ),
+          );
+
+          if (shouldExit == true) {
+            SystemNavigator.pop();
+          }
+
+          return false;
+        },
+    child:
+    Scaffold(
       backgroundColor: AppColors.whiteColor,
       appBar: AppBar(
         backgroundColor: AppColors.whiteColor,
@@ -367,6 +427,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+    )
     );
   }
 
@@ -524,9 +585,13 @@ class _HomePageState extends State<HomePage> {
   Future<void> _logout(BuildContext context) async {
     final storage = SecureStorageService();
 
+    // hapus session
     await storage.clearSession();
 
-    AppCache.welcomeShown = false; // 👈 RESET DI SINI
+    // reset cache aplikasi
+    AppCache.profile = null;
+    AppCache.billingList.clear();
+    AppCache.welcomeShown = false;
 
     if (!context.mounted) return;
 
@@ -534,7 +599,7 @@ class _HomePageState extends State<HomePage> {
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => const LoginPage()),
+      MaterialPageRoute(builder: (_) => const AppLoaderPage()),
           (route) => false,
     );
   }

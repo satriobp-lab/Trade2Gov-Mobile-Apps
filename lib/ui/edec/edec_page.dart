@@ -5,6 +5,7 @@ import 'package:trade2gov/ui/edec/PIB/details/pib_history_list_page.dart';
 import 'package:trade2gov/ui/edec/PEB/details/peb_history_list_page.dart';
 import 'package:trade2gov/ui/edec/PIBK/details/pibk_history_list_page.dart';
 import 'package:trade2gov/ui/edec/PKBE/details/pkbe_history_list_page.dart';
+import 'package:trade2gov/ui/edec/TPB/details/tpb_history_list_page.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_box_decoration.dart';
 import 'PIB/summary/pib_summary_page.dart';
@@ -24,7 +25,8 @@ class EdecPage extends StatefulWidget {
   State<EdecPage> createState() => _EdecPageState();
 }
 
-class _EdecPageState extends State<EdecPage> {
+class _EdecPageState extends State<EdecPage>
+    with SingleTickerProviderStateMixin {
   // final Map<String, int> documentData = {
   //   'PIB': 100,
   //   'PEB': 85,
@@ -35,18 +37,38 @@ class _EdecPageState extends State<EdecPage> {
   Map<String, int> documentData = {};
   bool isLoading = true;
 
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
   final Map<String, Color> chartColors = {
     'PIB': AppColors.customColorRed,
     'PEB': const Color(0xFFF4A261),
-    'PKBE': const Color(0xFF2A9D8F),
-    'PIBK': const Color(0xFF264653),
+    'PIBK': const Color(0xFF2A9D8F),
+    // 'PKBE': const Color(0xFF264653),
     'TPB': const Color(0xFF6A4C93),
   };
 
   @override
   void initState() {
     super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2), // ubah sesuai rasa
+    );
+
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    );
+
     _loadDashboard();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   Future<void> _loadDashboard() async {
@@ -57,12 +79,16 @@ class _EdecPageState extends State<EdecPage> {
         documentData = {
           'PIB': data.pib,
           'PEB': data.peb,
-          'PKBE': data.pkbe,
+          // 'PKBE': data.pkbe,
           'PIBK': data.pibk,
           'TPB': 187,
         };
         isLoading = false;
       });
+
+      // 🔥 START ANIMATION DI SINI
+      _controller.forward(from: 0);
+
     } catch (e) {
       setState(() {
         isLoading = false;
@@ -100,8 +126,10 @@ class _EdecPageState extends State<EdecPage> {
       );
     }
 
-
-    int totalDocs = documentData.values.fold(0, (sum, item) => sum + item);
+    int totalDocs = (documentData.values
+        .fold(0, (sum, item) => sum + item) *
+        _animation.value)
+        .toInt();
 
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
@@ -153,32 +181,60 @@ class _EdecPageState extends State<EdecPage> {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        PieChart(
-                          PieChartData(
-                            sectionsSpace: 2,
-                            centerSpaceRadius: 50,
-                            sections: _buildChartSections(),
-                          ),
+                        AnimatedBuilder(
+                          animation: _animation,
+                          builder: (context, child) {
+                            return ClipPath(
+                              clipper: PieRevealClipper(_animation.value),
+                              child: PieChart(
+                                PieChartData(
+                                  sectionsSpace: 2,
+                                  centerSpaceRadius: 50,
+                                  sections: documentData.entries.map((entry) {
+                                    return PieChartSectionData(
+                                      color: chartColors[entry.key],
+                                      value: entry.value.toDouble(),
+                                      title: '',
+                                      radius: 25,
+                                      showTitle: false,
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '$totalDocs',
-                              style: GoogleFonts.roboto(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.customColorGray,
-                              ),
-                            ),
-                            Text(
-                              'Total',
-                              style: GoogleFonts.roboto(
-                                fontSize: 12,
-                                color: AppColors.customColorGray.withOpacity(0.6),
-                              ),
-                            ),
-                          ],
+                        TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0, end: 1),
+                          duration: const Duration(seconds: 2),
+                          curve: Curves.easeOutCubic,
+                          builder: (context, value, child) {
+                            int totalDocs = (documentData.values
+                                .fold(0, (sum, item) => sum + item) *
+                                value)
+                                .toInt();
+
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '$totalDocs',
+                                  style: GoogleFonts.roboto(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.customColorGray,
+                                  ),
+                                ),
+                                Text(
+                                  'Total',
+                                  style: GoogleFonts.roboto(
+                                    fontSize: 12,
+                                    color: AppColors.customColorGray.withOpacity(0.6),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -218,7 +274,7 @@ class _EdecPageState extends State<EdecPage> {
     return documentData.entries.map((entry) {
       return PieChartSectionData(
         color: chartColors[entry.key],
-        value: entry.value.toDouble(),
+        value: entry.value.toDouble() * _animation.value,
         title: '',
         radius: 25,
         showTitle: false,
@@ -307,15 +363,15 @@ class _EdecPageState extends State<EdecPage> {
                             ),
                           ),
                         );
-                      } else if (title == 'PKBE') {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PkbeSummaryPage(
-                              pkbeList: AppCache.edecDashboard?.pkbeList ?? [],
-                            ),
-                          ),
-                        );
+                      // } else if (title == 'PKBE') {
+                      //   Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //       builder: (context) => PkbeSummaryPage(
+                      //         pkbeList: AppCache.edecDashboard?.pkbeList ?? [],
+                      //       ),
+                      //     ),
+                      //   );
                       } else if (title == 'PIBK') {
                         Navigator.push(
                           context,
@@ -366,23 +422,30 @@ class _EdecPageState extends State<EdecPage> {
                           context,
                           MaterialPageRoute(builder: (context) => const PebHistoryListPage()),
                         );
-                      } else if (title == 'PKBE') {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const PkbeHistoryListPage()),
-                        );
+                      // } else if (title == 'PKBE') {
+                      //   Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(builder: (context) => const PkbeHistoryListPage()),
+                      //   );
                       } else if (title == 'PIBK') {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => const PibkHistoryListPage()),
                         );
                       } else if (title == 'TPB') {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('TPB Details masih dalam pengembangan'),
-                          ),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const TpbHistoryListPage()),
                         );
                       }
+                      // } else if (title == 'TPB') {
+                      //   ScaffoldMessenger.of(context).showSnackBar(
+                      //     const SnackBar(
+                      //       content: Text('TPB Details masih dalam pengembangan'),
+                      //     ),
+                      //   );
+                      // }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.customColorRed,
@@ -405,5 +468,50 @@ class _EdecPageState extends State<EdecPage> {
         ],
       ),
     );
+  }
+
+  void _startChartAnimation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _controller.forward();
+      }
+    });
+  }
+}
+
+class PieRevealClipper extends CustomClipper<Path> {
+  final double progress;
+
+  PieRevealClipper(this.progress);
+
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+
+    // ✅ Kalau sudah 100%, tampilkan full chart
+    if (progress >= 0.999) {
+      path.addRect(Rect.fromLTWH(0, 0, size.width, size.height));
+      return path;
+    }
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+
+    path.moveTo(center.dx, center.dy);
+
+    path.arcTo(
+      Rect.fromCircle(center: center, radius: radius),
+      -90 * (3.1415926535 / 180),
+      2 * 3.1415926535 * progress,
+      false,
+    );
+
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant PieRevealClipper oldClipper) {
+    return oldClipper.progress != progress;
   }
 }

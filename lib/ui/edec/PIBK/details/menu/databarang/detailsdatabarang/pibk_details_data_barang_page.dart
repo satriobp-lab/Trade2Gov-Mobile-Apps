@@ -115,8 +115,8 @@ class PibkDetailsDataBarangPage extends StatelessWidget {
                 _buildInfoCard([
                   _buildDetailRow('Amount', _display(detil['JMLSAT'])),
                   _buildDetailRow('BT - Diskon', _display(detil['HDISKON'])),
-                  _buildDetailRow('Jenis Satuan', _display(detil['KDSAT'])),
-                  _buildDetailRow('Kode Satuan', _display(detil['KODE_SATUANUR'])),
+                  _buildDetailRow('Jenis Satuan', _display(detil['KODE_SATUANUR'])),
+                  _buildDetailRow('Kode Satuan', _display(detil['KDSAT'])),
                   _buildDetailRow('Harga Satuan', _display(detil['HARGA_SATUAN'])),
                   _buildDetailRow('Harga FOB', _display(detil['HINVOICE'])),
                   _buildDetailRow('Freight', _display(detil['HFREIGHT'])),

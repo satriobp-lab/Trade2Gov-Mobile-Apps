@@ -14,6 +14,10 @@ class SecureStorageService {
     return await _storage.read(key: _keyUserId);
   }
 
+  Future<String?> getToken() async {
+    return await _storage.read(key: _keyUserHash);
+  }
+
   Future<void> saveLoginSession({
     required String userId,
     required String userHash,

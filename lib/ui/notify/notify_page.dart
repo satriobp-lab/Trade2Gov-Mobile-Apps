@@ -7,6 +7,7 @@ import '../mailbox/mailbox_tab.dart';
 import '../profile/profile_page.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_box_decoration.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NotifyPage extends StatefulWidget {
   const NotifyPage({super.key});
@@ -69,37 +70,75 @@ class _NotifyPageState extends State<NotifyPage> {
   }
 }
 
-class NotifyContent extends StatelessWidget {
+class NotifyContent extends StatefulWidget {
   const NotifyContent({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<Map<String, String>> notifications = [
+  State<NotifyContent> createState() => _NotifyContentState();
+}
+
+class _NotifyContentState extends State<NotifyContent> {
+
+  List<Map<String, String>> notifications = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFirstInstall();
+  }
+
+  Future<void> _checkFirstInstall() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    String? installDate = prefs.getString('install_date');
+
+    if (installDate == null) {
+      final now = DateTime.now();
+      installDate = '${now.day}/${now.month}/${now.year}';
+
+      await prefs.setString('install_date', installDate);
+    }
+
+    notifications = [
       {
-        'title': 'Tagihan Baru Terbit',
-        'desc': 'Tagihan periode Januari 2026 telah diterbitkan. Silahkan cek menu Billing.',
-        'time': '2 Jam yang lalu',
-        'type': 'billing'
-      },
-      {
-        'title': 'Pesan Baru di Mailbox',
-        'desc': 'Anda menerima dokumen respon e-Declaration dari sistem Bea Cukai.',
-        'time': '5 Jam yang lalu',
-        'type': 'mail'
-      },
-      {
-        'title': 'Update Sistem',
-        'desc': 'Sistem T2G akan melakukan pemeliharaan rutin pada pukul 23:00 WIB.',
-        'time': 'Kemarin',
+        'title': 'Selamat Datang',
+        'desc': 'Terima kasih telah mempercayai dan menggunakan aplikasi ini.',
+        'time': installDate,
         'type': 'info'
-      },
-      {
-        'title': 'Status Dokumen Berubah',
-        'desc': 'Dokumen ekspor anda dengan nomor ref #8821 telah disetujui.',
-        'time': '2 Hari yang lalu',
-        'type': 'status'
-      },
+      }
     ];
+
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // final List<Map<String, String>> notifications = [
+    //   {
+    //     'title': 'Tagihan Baru Terbit',
+    //     'desc': 'Tagihan periode Januari 2026 telah diterbitkan. Silahkan cek menu Billing.',
+    //     'time': '2 Jam yang lalu',
+    //     'type': 'billing'
+    //   },
+    //   {
+    //     'title': 'Pesan Baru di Mailbox',
+    //     'desc': 'Anda menerima dokumen respon e-Declaration dari sistem Bea Cukai.',
+    //     'time': '5 Jam yang lalu',
+    //     'type': 'mail'
+    //   },
+    //   {
+    //     'title': 'Update Sistem',
+    //     'desc': 'Sistem T2G akan melakukan pemeliharaan rutin pada pukul 23:00 WIB.',
+    //     'time': 'Kemarin',
+    //     'type': 'info'
+    //   },
+    //   {
+    //     'title': 'Status Dokumen Berubah',
+    //     'desc': 'Dokumen ekspor anda dengan nomor ref #8821 telah disetujui.',
+    //     'time': '2 Hari yang lalu',
+    //     'type': 'status'
+    //   },
+    // ];
 
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
