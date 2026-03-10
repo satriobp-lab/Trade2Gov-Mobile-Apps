@@ -8,6 +8,7 @@ import '../../data/controllers/mailbox_controller.dart';
 import '../../data/controllers/profile_controller.dart';
 import '../../core/app_cache.dart';
 import '../landing/landing_page.dart';
+import '../../widgets/cool_loader.dart';
 
 class AppLoaderPage extends StatefulWidget {
   const AppLoaderPage({super.key});
@@ -79,11 +80,11 @@ class _AppLoaderPageState extends State<AppLoaderPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Image.asset(
-            //   'assets/images/t2g-logo.png',
-            //   width: 280,
-            // ),
-            const SizedBox(height: 25),
+
+            const CoolLoader(),
+
+            const SizedBox(height: 20),
+
             Text(
               'Preparing your workspace...',
               style: GoogleFonts.lato(
@@ -92,13 +93,9 @@ class _AppLoaderPageState extends State<AppLoaderPage> {
                 color: AppColors.customColorRed,
               ),
             ),
-            const SizedBox(height: 20),
-            const CircularProgressIndicator(
-              color: AppColors.customColorRed,
-              strokeWidth: 2.5,
-            ),
+
           ],
-        ),
+        )
       ),
     );
   }

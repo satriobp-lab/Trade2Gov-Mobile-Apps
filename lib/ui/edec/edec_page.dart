@@ -7,6 +7,7 @@ import 'package:trade2gov/ui/edec/PIBK/details/pibk_history_list_page.dart';
 import 'package:trade2gov/ui/edec/PKBE/details/pkbe_history_list_page.dart';
 import 'package:trade2gov/ui/edec/TPB/details/tpb_history_list_page.dart';
 import '../../utils/app_colors.dart';
+import '../../widgets/edec_loader.dart';
 import '../../utils/app_box_decoration.dart';
 import 'PIB/summary/pib_summary_page.dart';
 import 'PEB/summary/peb_summary_page.dart'; // Import halaman PEB baru
@@ -107,10 +108,7 @@ class _EdecPageState extends State<EdecPage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CupertinoActivityIndicator(
-                radius: 15,
-                color: AppColors.customColorRed,
-              ),
+              const EdecLoader(),
               const SizedBox(height: 12),
               Text(
                 'Loading e-Dec dashboard...',

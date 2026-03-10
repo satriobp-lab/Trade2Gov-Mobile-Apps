@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:trade2gov/ui/edec/edec_page.dart';
 import 'package:trade2gov/ui/scan/scan_page.dart';
+import '../../utils/page_transition.dart';
 import '../about/about_page.dart';
 import '../notify/notify_page.dart';
 import '../scan/scan_page.dart';
@@ -15,6 +16,9 @@ import '../../data/models/billing_response_model.dart';
 import '../../core/app_cache.dart';
 import '../../data/models/profile_response_model.dart';
 import '../../ui/splash/app_loader_page.dart';
+import '../kurs/kurs_page.dart';
+import '../tracking/tracking_page.dart';
+import '../information/information_page.dart';
 import 'package:flutter/services.dart';
 
 class HomePage extends StatefulWidget {
@@ -176,7 +180,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const NotifyPage()),
+                PageTransition.slide(const NotifyPage()),
               );
             },
           ),
@@ -446,9 +450,36 @@ class _HomePageState extends State<HomePage> {
           },
           onTap: () {
             Future.delayed(const Duration(milliseconds: 100), () {
-              if (index == 0) widget.onOpenKurs();
-              if (index == 1) widget.onOpenTracking();
-              if (index == 2) widget.onOpenInformation();
+              if (index == 0) Navigator.push(
+                context,
+                PageTransition.slide(
+                  KursPage(
+                    onBackToHome: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              );
+              if (index == 1) Navigator.push(
+                context,
+                PageTransition.slide(
+                  TrackingPage(
+                    onBackToHome: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              );
+              if (index == 2) Navigator.push(
+                context,
+                PageTransition.slide(
+                  InformationPage(
+                    onBackToHome: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              );
               setState(() => _activeMenu = -1);
             });
           },
@@ -545,7 +576,7 @@ class _HomePageState extends State<HomePage> {
             Navigator.pop(context); // Tutup drawer
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const AboutPage()),
+              PageTransition.slide(const AboutPage()),
             );
           }),
           // _drawerItem(Icons.e_mobiledata_rounded, 'e-Dec', false, () {
@@ -753,8 +784,7 @@ class _HomePageState extends State<HomePage> {
           onPressed: () {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(
-                builder: (context) =>
+              PageTransition.slide(
                 const MainNavigation(initialIndex: 1),
               ),
                   (route) => false,

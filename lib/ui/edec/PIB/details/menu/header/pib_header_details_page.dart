@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
+import '../../../../../../widgets/edec_loader.dart';
 import '../../../../../../utils/app_box_decoration.dart';
 import '../../../../../../data/controllers/pib/pib_header_controller.dart';
 import '../../../../../../data/models/pib/pib_header_response_model.dart';
@@ -78,10 +79,24 @@ class _PibHeaderDetailsPageState
       body: FutureBuilder<PibHeaderResponseModel>(
         future: _futureHeader,
         builder: (context, snapshot) {
-          if (snapshot.connectionState ==
-              ConnectionState.waiting) {
-            return const Center(
-                child: CircularProgressIndicator());
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const EdecLoader(),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Loading PIB Header Details...',
+                    style: GoogleFonts.lato(
+                      color: AppColors.customColorRed,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
 
           if (snapshot.hasError) {

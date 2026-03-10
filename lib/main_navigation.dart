@@ -92,15 +92,25 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: [
-          _buildHomeTab(),
-          const BillingPage(),
-          const CallCenterPage(),
-          const MailboxTab(),
-          const ProfilePage(),
-        ],
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 450),
+        transitionBuilder: (child, animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+        child: IndexedStack(
+          key: ValueKey(_selectedIndex),
+          index: _selectedIndex,
+          children: [
+            _buildHomeTab(),
+            const BillingPage(),
+            const CallCenterPage(),
+            const MailboxTab(),
+            const ProfilePage(),
+          ],
+        ),
       ),
       bottomNavigationBar: _hideBottomNav()
           ? null

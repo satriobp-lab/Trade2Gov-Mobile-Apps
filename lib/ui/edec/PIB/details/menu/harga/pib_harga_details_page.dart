@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
+import '../../../../../../widgets/edec_loader.dart';
 import '../../../../../../data/controllers/pib/pib_dataharga_controller.dart';
 import '../../../../../../data/models/pib/pib_dataharga_response_model.dart';
 
@@ -75,9 +76,21 @@ class PibHargaDetailsPage extends StatelessWidget {
         future: PibDataHargaController.getDataHarga(car),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.customColorRed,
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const EdecLoader(),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Loading PIB Harga Details...',
+                    style: GoogleFonts.lato(
+                      color: AppColors.customColorRed,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             );
           }

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_box_decoration.dart';
 import 'menu/pib_details_menu_page.dart';
+import '../../../../widgets/edec_loader.dart';
 import 'package:trade2gov/data/controllers/pib/pib_historylist_controller.dart';
 import 'package:trade2gov/data/models/pib/pib_historylist_response_model.dart';
 
@@ -73,50 +74,66 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          /// ✅ PAKAI SEARCH WIDGET DI SINI
-          _buildSearchBar(),
+      body: FutureBuilder<List<PibHistoryListResponseModel>>(
+        future: _futurePib,
+        builder: (context, snapshot) {
 
-          // 📄 List of History
-          Expanded(
-            child: FutureBuilder<List<PibHistoryListResponseModel>>(
-              future: _futurePib,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const EdecLoader(),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Loading PIB history...',
+                    style: GoogleFonts.lato(
+                      color: AppColors.customColorRed,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
 
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text("Error: ${snapshot.error}"),
-                  );
-                }
+          if (snapshot.hasError) {
+            return Center(
+              child: Text("Error: ${snapshot.error}"),
+            );
+          }
 
-                if (_allData.isEmpty) {
-                  _allData = snapshot.data ?? [];
-                  _filteredData = _allData;
-                }
+          if (_allData.isEmpty) {
+            _allData = snapshot.data ?? [];
+            _filteredData = _allData;
+          }
 
-                final data = _filteredData;
+          final data = _filteredData;
 
+          if (data.isEmpty) {
+            return const Center(child: Text("Tidak ada data"));
+          }
 
-                if (data.isEmpty) {
-                  return const Center(child: Text("Tidak ada data"));
-                }
+          return Column(
+            children: [
 
-                return ListView.builder(
+              /// ✅ Search muncul hanya setelah load selesai
+              _buildSearchBar(),
+
+              Expanded(
+                child: ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   itemCount: data.length,
                   itemBuilder: (context, index) {
                     final item = data[index];
                     return _buildHistoryCard(item);
                   },
-                );
-              },
-            ),
-          ),
-        ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
