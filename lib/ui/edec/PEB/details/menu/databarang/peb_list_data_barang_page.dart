@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
 import 'detailsdatabarang/peb_details_data_barang_page.dart';
+import '../../../../../../widgets/edec_loader.dart';
 import 'package:trade2gov/data/controllers/peb/peb_listdatabarang_controller.dart';
 import 'package:trade2gov/data/models/peb/peb_listdatabarang_response_model.dart';
 
@@ -86,7 +87,23 @@ class _PebListDataBarangPageState
         future: _futureBarang,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const EdecLoader(),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Loading PEB List Data Barang Details...',
+                    style: GoogleFonts.lato(
+                      color: AppColors.customColorRed,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
 
           if (snapshot.hasError) {

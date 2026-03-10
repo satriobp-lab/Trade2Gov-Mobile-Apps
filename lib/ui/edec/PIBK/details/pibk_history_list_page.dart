@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_box_decoration.dart';
 import 'menu/pibk_details_menu_page.dart';
+import '../../../../../../widgets/edec_loader.dart';
 import 'package:trade2gov/data/controllers/pibk/pibk_historylist_controller.dart';
 import 'package:trade2gov/data/models/pibk/pibk_historylist_response_model.dart';
 
@@ -87,7 +88,23 @@ class _PibkHistoryListPageState extends State<PibkHistoryListPage> {
         future: _futurePibk,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const EdecLoader(),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Loading PIBK history...',
+                    style: GoogleFonts.lato(
+                      color: AppColors.customColorRed,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
 
           if (snapshot.hasError) {

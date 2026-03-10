@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
+import '../../../../../../widgets/edec_loader.dart';
 import '../../../../../../utils/app_box_decoration.dart';
 import 'package:trade2gov/data/controllers/peb/peb_container_controller.dart';
 import 'package:trade2gov/data/models/peb/peb_container_response_model.dart';
@@ -63,7 +64,23 @@ class PebContainerDetailsPage extends StatelessWidget {
         builder: (context, snapshot) {
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const EdecLoader(),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Loading PEB Container Details...',
+                    style: GoogleFonts.lato(
+                      color: AppColors.customColorRed,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
 
           if (snapshot.hasError) {
