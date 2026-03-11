@@ -5,6 +5,7 @@ import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_box_decoration.dart';
 import 'menu/pib_details_menu_page.dart';
 import '../../../../widgets/edec_loader.dart';
+import '../../../../widgets/animated_inverse_red_button.dart';
 import 'package:trade2gov/data/controllers/pib/pib_historylist_controller.dart';
 import 'package:trade2gov/data/models/pib/pib_historylist_response_model.dart';
 
@@ -23,6 +24,9 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
 
   List<PibHistoryListResponseModel> _allData = [];
   List<PibHistoryListResponseModel> _filteredData = [];
+
+  int _currentPage = 0;
+  final int _rowsPerPage = 10;
 
   @override
   void initState() {
@@ -109,7 +113,7 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
             _filteredData = _allData;
           }
 
-          final data = _filteredData;
+          final data = _getPagedData();
 
           if (data.isEmpty) {
             return const Center(child: Text("Tidak ada data"));
@@ -131,6 +135,7 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
                   },
                 ),
               ),
+              _buildPagination(),
             ],
           );
         },
@@ -208,8 +213,10 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
           // Action Button
           SizedBox(
             width: double.infinity,
-            height: 38,
-            child: ElevatedButton(
+            child: AnimatedInverseRedButton(
+              width: double.infinity,
+              height: 38,
+              text: "View Details",
               onPressed: () {
                 Navigator.push(
                   context,
@@ -220,21 +227,6 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
                   ),
                 );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.customColorRed,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: Text(
-                'View Details',
-                style: GoogleFonts.roboto(
-                  color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
             ),
           ),
         ],
@@ -262,16 +254,18 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
     final query = keyword.trim().toLowerCase();
 
     setState(() {
+      _currentPage = 0;
+
       if (query.isEmpty) {
         _filteredData = _allData;
       } else {
         _filteredData = _allData.where((item) {
-          final noAju = (item.noAju ?? '').toLowerCase();   // Nomor Aju
-          final car = (item.car ?? '').toLowerCase();       // CAR
-          final pibNo = (item.pibNo ?? '').toLowerCase();   // Nomor Daftar PIB
-          final pibTg = (item.pibTg ?? '').toLowerCase();   // Tanggal Daftar
-          final tglAju = (item.tglAju ?? '').toLowerCase(); // Tanggal Aju
-          final kdKpbc = (item.kdKpbc ?? '').toLowerCase(); // Kantor
+          final noAju = (item.noAju ?? '').toLowerCase();
+          final car = (item.car ?? '').toLowerCase();
+          final pibNo = (item.pibNo ?? '').toLowerCase();
+          final pibTg = (item.pibTg ?? '').toLowerCase();
+          final tglAju = (item.tglAju ?? '').toLowerCase();
+          final kdKpbc = (item.kdKpbc ?? '').toLowerCase();
 
           return noAju.contains(query) ||
               car.contains(query) ||
@@ -329,6 +323,127 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
       return word[0].toUpperCase() + word.substring(1);
     })
         .join(' ');
+  }
+
+  List<PibHistoryListResponseModel> _getPagedData() {
+    final start = _currentPage * _rowsPerPage;
+    final end = start + _rowsPerPage;
+
+    if (start >= _filteredData.length) return [];
+
+    return _filteredData.sublist(
+      start,
+      end > _filteredData.length ? _filteredData.length : end,
+    );
+  }
+
+  Widget _buildPagination() {
+    final totalPage = (_filteredData.length / _rowsPerPage).ceil();
+
+    if (totalPage <= 1) return const SizedBox();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(25, 10, 25, 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+
+          /// PREVIOUS
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: _currentPage > 0
+                  ? () {
+                setState(() {
+                  _currentPage--;
+                });
+              }
+                  : null,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.chevron_left_rounded,
+                      color: _currentPage > 0
+                          ? AppColors.customColorRed
+                          : Colors.grey,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      "Previous",
+                      style: GoogleFonts.lato(
+                        color: _currentPage > 0
+                            ? AppColors.customColorRed
+                            : Colors.grey,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          /// PAGE INDICATOR
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: AppColors.customColorRed.withOpacity(0.5),
+              ),
+            ),
+            child: Text(
+              "Page ${_currentPage + 1} / $totalPage",
+              style: GoogleFonts.lato(
+                fontWeight: FontWeight.bold,
+                color: AppColors.customColorRed,
+              ),
+            ),
+          ),
+
+          /// NEXT
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: (_currentPage + 1) < totalPage
+                  ? () {
+                setState(() {
+                  _currentPage++;
+                });
+              }
+                  : null,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Row(
+                  children: [
+                    Text(
+                      "Next",
+                      style: GoogleFonts.lato(
+                        color: (_currentPage + 1) < totalPage
+                            ? AppColors.customColorRed
+                            : Colors.grey,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: (_currentPage + 1) < totalPage
+                          ? AppColors.customColorRed
+                          : Colors.grey,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

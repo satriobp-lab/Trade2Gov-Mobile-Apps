@@ -107,8 +107,7 @@ class _PibContainerDetailsPageState
           final containerList = snapshot.data ?? [];
 
           if (containerList.isEmpty) {
-            return const Center(
-                child: Text("Tidak ada data container"));
+            return _buildEmptyState();
           }
 
           return ListView.builder(
@@ -242,6 +241,55 @@ class _PibContainerDetailsPageState
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+            Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.customColorRed.withOpacity(0.08),
+              ),
+              child: const Icon(
+                Icons.local_shipping_outlined,
+                size: 70,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            Text(
+              "Container Tidak Ditemukan",
+              style: GoogleFonts.lato(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              "Belum terdapat data container\nuntuk CAR ini.",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.roboto(
+                fontSize: 13,
+                color: AppColors.customColorGray,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

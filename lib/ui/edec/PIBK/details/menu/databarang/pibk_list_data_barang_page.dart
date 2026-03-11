@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
 import '../../../../../../widgets/edec_loader.dart';
+import '../../../../../../widgets/animated_inverse_red_button.dart';
 import 'detailsdatabarang/pibk_details_data_barang_page.dart';
 import 'package:trade2gov/data/controllers/pibk/pibk_listdatabarang_controller.dart';
 import 'package:trade2gov/data/models/pibk/pibk_listdatabarang_response_model.dart';
@@ -150,7 +151,10 @@ class PibkListDataBarangPage extends StatelessWidget {
                       ),
                     ),
 
-                    ElevatedButton(
+                    AnimatedInverseRedButton(
+                      width: 110,
+                      height: 34,
+                      text: "View Details",
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -162,22 +166,6 @@ class PibkListDataBarangPage extends StatelessWidget {
                           ),
                         );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.customColorRed,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        'View Details',
-                        style: GoogleFonts.roboto(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
                     ),
                   ],
                 ),

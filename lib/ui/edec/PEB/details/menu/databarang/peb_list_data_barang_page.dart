@@ -4,6 +4,7 @@ import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
 import 'detailsdatabarang/peb_details_data_barang_page.dart';
 import '../../../../../../widgets/edec_loader.dart';
+import '../../../../../../widgets/animated_inverse_red_button.dart';
 import 'package:trade2gov/data/controllers/peb/peb_listdatabarang_controller.dart';
 import 'package:trade2gov/data/models/peb/peb_listdatabarang_response_model.dart';
 
@@ -170,35 +171,21 @@ class _PebListDataBarangPageState
                     ),
 
                     // Button View Details (TETAP)
-                    ElevatedButton(
+                    AnimatedInverseRedButton(
+                      width: 110,
+                      height: 34,
+                      text: "View Details",
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => PebDetailsDataBarangPage(
-                              car: widget.car, // 🔥 kirim CAR dari halaman list
+                              car: widget.car,
                               serialNumber: (item.seriBrg ?? '').toString(),
                             ),
                           ),
                         );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.customColorRed,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        'View Details',
-                        style: GoogleFonts.roboto(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
                     ),
                   ],
                 ),
