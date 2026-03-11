@@ -20,6 +20,7 @@ import '../kurs/kurs_page.dart';
 import '../tracking/tracking_page.dart';
 import '../information/information_page.dart';
 import 'package:flutter/services.dart';
+import '../../widgets/animated_inverse_red_button.dart';
 
 class HomePage extends StatefulWidget {
   final VoidCallback onOpenInformation;
@@ -780,7 +781,8 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        ElevatedButton(
+        AnimatedInverseRedButton(
+          text: "Lihat Tagihan",
           onPressed: () {
             Navigator.pushAndRemoveUntil(
               context,
@@ -790,22 +792,7 @@ class _HomePageState extends State<HomePage> {
                   (route) => false,
             );
           },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.customColorRed,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          child: Text(
-            'Lihat Tagihan',
-            style: GoogleFonts.roboto(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+        )
       ],
     );
   }

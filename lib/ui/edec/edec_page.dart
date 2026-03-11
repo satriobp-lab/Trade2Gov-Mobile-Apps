@@ -17,6 +17,8 @@ import 'TPB/summary/tpb_summary_page.dart';
 import 'package:flutter/cupertino.dart';
 import '../../data/controllers/edec_controller.dart';
 import '../../core/app_cache.dart';
+import '../../widgets/animated_inverse_white_button.dart';
+import '../../widgets/animated_inverse_red_button.dart';
 
 
 class EdecPage extends StatefulWidget {
@@ -340,7 +342,9 @@ class _EdecPageState extends State<EdecPage>
               Expanded(
                 child: SizedBox(
                   height: 35,
-                  child: OutlinedButton(
+                  child: AnimatedInverseWhiteButton(
+                    text: "Summary",
+                    height: 35,
                     onPressed: () {
                       // Navigasi Berdasarkan Tipe Dokumen
                       if (title == 'PIB') {
@@ -388,18 +392,18 @@ class _EdecPageState extends State<EdecPage>
                         );
                       }
                     },
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.customColorRed),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    child: Text(
-                      'Summary',
-                      style: GoogleFonts.roboto(
-                        color: AppColors.customColorRed,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    // style: OutlinedButton.styleFrom(
+                    //   side: const BorderSide(color: AppColors.customColorRed),
+                    //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    // ),
+                    // child: Text(
+                    //   'Summary',
+                    //   style: GoogleFonts.roboto(
+                    //     color: AppColors.customColorRed,
+                    //     fontSize: 12,
+                    //     fontWeight: FontWeight.bold,
+                    //   ),
+                    // ),
                   ),
                 ),
               ),
@@ -407,7 +411,9 @@ class _EdecPageState extends State<EdecPage>
               Expanded(
                 child: SizedBox(
                   height: 35,
-                  child: ElevatedButton(
+                  child: AnimatedInverseRedButton(
+                    text: "Details",
+                    height: 35,
                     onPressed: () {
                       // Navigasi Berdasarkan Tipe Dokumen
                       if (title == 'PIB') {
@@ -445,19 +451,19 @@ class _EdecPageState extends State<EdecPage>
                       //   );
                       // }
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.customColorRed,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    child: Text(
-                      'Details',
-                      style: GoogleFonts.roboto(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    // style: ElevatedButton.styleFrom(
+                    //   backgroundColor: AppColors.customColorRed,
+                    //   elevation: 0,
+                    //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    // ),
+                    // child: Text(
+                    //   'Details',
+                    //   style: GoogleFonts.roboto(
+                    //     color: Colors.white,
+                    //     fontSize: 12,
+                    //     fontWeight: FontWeight.bold,
+                    //   ),
+                    // ),
                   ),
                 ),
               ),

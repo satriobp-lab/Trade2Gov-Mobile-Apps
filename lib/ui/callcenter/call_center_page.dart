@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../utils/app_colors.dart';
 import 'package:url_launcher/url_launcher.dart'; // ✅ TAMBAHAN
 import '../../utils/app_box_decoration.dart';
+import '../../widgets/animated_inverse_red_button.dart';
 
 class CallCenterPage extends StatefulWidget {
   const CallCenterPage({super.key});
@@ -123,24 +124,11 @@ class _CallCenterPageState extends State<CallCenterPage> {
             ),
 
             // Button Click Here
-            ElevatedButton(
+            AnimatedInverseRedButton(
+              text: "Click Here",
               onPressed: onTap,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.customColorRed,
-                foregroundColor: Colors.white,
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              ),
-              child: Text(
-                'Click Here',
-                style: GoogleFonts.roboto(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
+              width: 110,
+              height: 38,
             ),
           ],
         ),
@@ -156,7 +144,7 @@ class _CallCenterPageState extends State<CallCenterPage> {
       scheme: 'mailto',
       path: 'marketing@edi-indonesia.co.id',
       // optional:
-      // query: 'subject=Need Help&body=Hello Team',
+      query: 'subject=Need Help&body=Hello Team',
     );
 
     if (await canLaunchUrl(emailUri)) {
