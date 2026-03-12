@@ -8,8 +8,7 @@ import 'detailsdatabarang/pib_details_data_barang_page.dart';
 import '../../../../../../data/controllers/pib/pib_listdatabarang_controller.dart';
 import '../../../../../../data/models/pib/pib_listdatabarang_response_model.dart';
 
-
-class PibListDataBarangPage extends StatelessWidget {
+class PibListDataBarangPage extends StatefulWidget {
   final String car;
 
   const PibListDataBarangPage({
@@ -18,13 +17,145 @@ class PibListDataBarangPage extends StatelessWidget {
   });
 
   @override
+  State<PibListDataBarangPage> createState() => _PibListDataBarangPageState();
+}
+
+class _PibListDataBarangPageState extends State<PibListDataBarangPage> {
+
+  late Future<List<PibListDataBarangResponseModel>> _futureBarang;
+
+  int _currentPage = 0;
+  final int _rowsPerPage = 10;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureBarang = PibListDataBarangController.getListDataBarang(widget.car);
+  }
+
+  List<PibListDataBarangResponseModel> _getPagedData(List<PibListDataBarangResponseModel> data) {
+    final start = _currentPage * _rowsPerPage;
+    final end = start + _rowsPerPage;
+
+    if (start >= data.length) return [];
+
+    return data.sublist(
+      start,
+      end > data.length ? data.length : end,
+    );
+  }
+
+  Widget _buildPagination(int totalData) {
+    final totalPage = (totalData / _rowsPerPage).ceil();
+
+    if (totalPage <= 1) return const SizedBox();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(25, 10, 25, 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+
+          /// PREVIOUS
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: _currentPage > 0
+                  ? () {
+                setState(() {
+                  _currentPage--;
+                });
+              }
+                  : null,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.chevron_left_rounded,
+                      color: _currentPage > 0
+                          ? AppColors.customColorRed
+                          : Colors.grey,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      "Previous",
+                      style: GoogleFonts.lato(
+                        color: _currentPage > 0
+                            ? AppColors.customColorRed
+                            : Colors.grey,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          /// PAGE INDICATOR
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: AppColors.customColorRed.withOpacity(0.5),
+              ),
+            ),
+            child: Text(
+              "Page ${_currentPage + 1} / $totalPage",
+              style: GoogleFonts.lato(
+                fontWeight: FontWeight.bold,
+                color: AppColors.customColorRed,
+              ),
+            ),
+          ),
+
+          /// NEXT
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: (_currentPage + 1) < totalPage
+                  ? () {
+                setState(() {
+                  _currentPage++;
+                });
+              }
+                  : null,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Row(
+                  children: [
+                    Text(
+                      "Next",
+                      style: GoogleFonts.lato(
+                        color: (_currentPage + 1) < totalPage
+                            ? AppColors.customColorRed
+                            : Colors.grey,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: (_currentPage + 1) < totalPage
+                          ? AppColors.customColorRed
+                          : Colors.grey,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // // Mock data untuk daftar barang
-    // final List<Map<String, String>> barangList = [
-    //   {'serial': 'Serial 1', 'hs': '8541.59.00'},
-    //   {'serial': 'Serial 2', 'hs': '3907.30.90'},
-    //   {'serial': 'Serial 3', 'hs': '2915.21.00'},
-    // ];
 
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
@@ -50,7 +181,7 @@ class PibListDataBarangPage extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              car,
+              widget.car,
               style: GoogleFonts.lato(
                 fontSize: 13,
                 color: AppColors.customColorGray,
@@ -68,7 +199,7 @@ class PibListDataBarangPage extends StatelessWidget {
         ),
       ),
       body: FutureBuilder<List<PibListDataBarangResponseModel>>(
-        future: PibListDataBarangController.getListDataBarang(car),
+        future: _futureBarang,
         builder: (context, snapshot) {
 
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -97,86 +228,148 @@ class PibListDataBarangPage extends StatelessWidget {
             );
           }
 
-          final barangList = snapshot.data ?? [];
+          final allData = snapshot.data ?? [];
+          final barangList = _getPagedData(allData);
 
-          if (barangList.isEmpty) {
-            return const Center(child: Text("Tidak ada data barang"));
+          if (allData.isEmpty) {
+            return _buildEmptyState();
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            itemCount: barangList.length,
-            itemBuilder: (context, index) {
-              final item = barangList[index];
+          return Column(
+            children: [
 
-              return Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: AppBox.primary(),
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: AppColors.customColorRed.withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.inventory_2_rounded,
-                        color: AppColors.customColorRed,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  itemCount: barangList.length,
+                  itemBuilder: (context, index) {
+                    final item = barangList[index];
 
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: AppBox.primary(),
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
                         children: [
-                          Text(
-                            'Serial ${item.serial}',
-                            style: GoogleFonts.lato(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.customColorGray,
+                          Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: AppColors.customColorRed.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.inventory_2_rounded,
+                              color: AppColors.customColorRed,
+                              size: 24,
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'HS : ${item.kodeHs}',
-                            style: GoogleFonts.roboto(
-                              fontSize: 14,
-                              color: AppColors.customColorGray.withOpacity(0.7),
+                          const SizedBox(width: 16),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Serial ${item.serial}',
+                                  style: GoogleFonts.lato(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.customColorGray,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'HS : ${item.kodeHs}',
+                                  style: GoogleFonts.roboto(
+                                    fontSize: 14,
+                                    color: AppColors.customColorGray.withOpacity(0.7),
+                                  ),
+                                ),
+                              ],
                             ),
+                          ),
+
+                          AnimatedInverseRedButton(
+                            width: 110,
+                            height: 34,
+                            text: "View Details",
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      PibDetailsDataBarangPage(
+                                        car: widget.car,
+                                        serialNumber: item.serial.toString(),
+                                      ),
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
-                    ),
-
-                    AnimatedInverseRedButton(
-                      width: 110,
-                      height: 34,
-                      text: "View Details",
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                PibDetailsDataBarangPage(
-                                  car: car,
-                                  serialNumber: item.serial.toString(),
-                                ),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+
+              _buildPagination(allData.length),
+            ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+            /// ICON
+            Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.customColorRed.withOpacity(0.08),
+              ),
+              child: const Icon(
+                Icons.inventory_2_outlined,
+                size: 70,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            /// TITLE
+            Text(
+              "Data Barang Tidak Ditemukan",
+              style: GoogleFonts.lato(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            /// SUBTITLE
+            Text(
+              "Belum terdapat data barang untuk CAR ini.\nSilakan periksa kembali data Anda.",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.roboto(
+                fontSize: 13,
+                color: AppColors.customColorGray,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

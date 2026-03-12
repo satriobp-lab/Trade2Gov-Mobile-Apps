@@ -115,7 +115,20 @@ class _PibkHistoryListPageState extends State<PibkHistoryListPage> {
             return Center(child: Text("Error: ${snapshot.error}"));
           }
 
+          /// isi data dari snapshot
           if (_allData.isEmpty) {
+            _allData = snapshot.data ?? [];
+            _filteredData = _allData;
+          }
+
+          /// kalau tetap kosong baru tampilkan empty state
+          /// Kondisi 1: API kosong dari awal
+          if (_allData.isEmpty) {
+            return _buildInitialEmptyState();
+          }
+
+          /// Kondisi 2: hasil search kosong
+          if (_filteredData.isEmpty) {
             return _buildEmptyState();
           }
 
@@ -123,8 +136,8 @@ class _PibkHistoryListPageState extends State<PibkHistoryListPage> {
             children: [
               _buildSearchBar(),
               Expanded(
-                child: _filteredData.isEmpty
-                    ? _buildEmptySearchState()
+                child: _filteredData.isEmpty && _allData.isNotEmpty
+                    ? _buildEmptyState()
                     : Builder(
                   builder: (context) {
                     final pageData = _getPagedData();
@@ -279,38 +292,90 @@ class _PibkHistoryListPageState extends State<PibkHistoryListPage> {
 
   Widget _buildEmptyState() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.inventory_2_outlined,
-              size: 70,
-              color: AppColors.customColorRed),
-          const SizedBox(height: 20),
-          Text(
-            "Belum Ada Data PIBK",
-            style: GoogleFonts.lato(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.customColorRed,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            "Data PIBK yang Anda ajukan akan muncul di sini.",
-            textAlign: TextAlign.center,
-            style: GoogleFonts.roboto(
-              fontSize: 13,
-              color: AppColors.customColorGray,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
 
-  Widget _buildEmptySearchState() {
-    return const Center(
-      child: Text("Data tidak ditemukan"),
+            /// ICON
+            Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.customColorRed.withOpacity(0.08),
+              ),
+              child: Icon(
+                Icons.inventory_2_outlined,
+                size: 70,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            /// TITLE
+            Text(
+              "Data PIBK Tidak Ditemukan",
+              style: GoogleFonts.lato(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            /// DESCRIPTION
+            Text(
+              "Tidak ada data PIBK yang sesuai dengan pencarian.\nSilakan periksa kembali kata kunci Anda.",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.roboto(
+                fontSize: 13,
+                color: AppColors.customColorGray,
+                height: 1.5,
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            /// REFRESH BUTTON
+            SizedBox(
+              width: 160,
+              height: 40,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  setState(() {
+
+                    /// reset search
+                    _searchController.clear();
+
+                    /// reset pagination
+                    _currentPage = 0;
+
+                    /// fetch ulang data
+                    _futurePibk =
+                        PibkHistoryListController.getPibkHistory().then((value) {
+                          _allData = value;
+                          _filteredData = value;
+                          return value;
+                        });
+                  });
+                },
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text("Refresh"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.customColorRed,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -480,6 +545,83 @@ class _PibkHistoryListPageState extends State<PibkHistoryListPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildInitialEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+            Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.customColorRed.withOpacity(0.08),
+              ),
+              child: const Icon(
+                Icons.inventory_2_outlined,
+                size: 70,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            Text(
+              "Belum Ada Data PIBK",
+              style: GoogleFonts.lato(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              "Saat ini belum terdapat data PIBK yang tersedia.\nSilakan cek kembali secara berkala.",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.roboto(
+                fontSize: 13,
+                color: AppColors.customColorGray,
+                height: 1.5,
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            SizedBox(
+              width: 160,
+              height: 40,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _futurePibk =
+                        PibkHistoryListController.getPibkHistory().then((value) {
+                          _allData = value;
+                          _filteredData = value;
+                          return value;
+                        });
+                  });
+                },
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text("Refresh"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.customColorRed,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

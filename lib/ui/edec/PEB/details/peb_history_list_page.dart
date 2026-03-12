@@ -111,11 +111,17 @@ class _PebHistoryListPageState extends State<PebHistoryListPage> {
             _filteredData = _allData;
           }
 
-          final data = _getPagedData();
+          /// Kondisi 1: API kosong dari awal
+          if (_allData.isEmpty) {
+            return _buildInitialEmptyState();
+          }
 
-          if (data.isEmpty) {
+          /// Kondisi 2: hasil search kosong
+          if (_filteredData.isEmpty) {
             return _buildEmptyState();
           }
+
+          final data = _getPagedData();
 
           return Column(
             children: [
@@ -307,8 +313,20 @@ class _PebHistoryListPageState extends State<PebHistoryListPage> {
               child: ElevatedButton.icon(
                 onPressed: () {
                   setState(() {
-                    _futurePeb =
-                        PebHistoryListController.getPebHistory();
+
+                    /// reset search
+                    _searchController.clear();
+
+                    /// reset pagination
+                    _currentPage = 0;
+
+                    /// fetch ulang data
+                    _futurePeb = PebHistoryListController.getPebHistory().then((value) {
+                      _allData = value;
+                      _filteredData = value;
+                      return value;
+                    });
+
                   });
                 },
                 icon: const Icon(Icons.refresh_rounded, size: 18),
@@ -514,6 +532,82 @@ class _PebHistoryListPageState extends State<PebHistoryListPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildInitialEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+            Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.customColorRed.withOpacity(0.08),
+              ),
+              child: const Icon(
+                Icons.inventory_2_outlined,
+                size: 70,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            Text(
+              "Belum Ada Data PEB",
+              style: GoogleFonts.lato(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              "Saat ini belum terdapat data PEB yang tersedia.\nSilakan cek kembali secara berkala.",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.roboto(
+                fontSize: 13,
+                color: AppColors.customColorGray,
+                height: 1.5,
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            SizedBox(
+              width: 160,
+              height: 40,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _futurePeb = PebHistoryListController.getPebHistory().then((value) {
+                      _allData = value;
+                      _filteredData = value;
+                      return value;
+                    });
+                  });
+                },
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text("Refresh"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.customColorRed,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
