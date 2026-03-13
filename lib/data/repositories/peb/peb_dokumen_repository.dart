@@ -8,37 +8,13 @@ class PebDokumenRepository {
 
 
   // 🔥 KHUSUS IMPLEMENTASI SESUAI USER LOGIN (JANGAN DIHAPUS - NANTI DIPAKAI)
-  // Future<List<PebDokumenResponseModel>> fetchPebDokumen(String car) async {
-  //   final userId = await _storage.getUserId();
-  //
-  //   final response = await _api.postRaw(
-  //     'edeclaration/bc30/header/dokumen',
-  //     {
-  //       "USER_ID": userId,
-  //       "CAR": car,
-  //     },
-  //   );
-  //
-  //   if (response == null) {
-  //     return [];
-  //   }
-  //
-  //   if (response is List) {
-  //     return response
-  //         .map((e) => PebDokumenResponseModel.fromJson(e))
-  //         .toList();
-  //   } else {
-  //     throw Exception("Format response tidak sesuai");
-  //   }
-  // }
-
-  //Force USER ID 175
   Future<List<PebDokumenResponseModel>> fetchPebDokumen(String car) async {
+    final userId = await _storage.getUserId();
 
     final response = await _api.postRaw(
       'edeclaration/bc30/header/dokumen',
       {
-        "USER_ID": "175", // force hardcode
+        "USER_ID": userId,
         "CAR": car,
       },
     );
@@ -55,4 +31,28 @@ class PebDokumenRepository {
       throw Exception("Format response tidak sesuai");
     }
   }
+
+  //Force USER ID 175
+  // Future<List<PebDokumenResponseModel>> fetchPebDokumen(String car) async {
+  //
+  //   final response = await _api.postRaw(
+  //     'edeclaration/bc30/header/dokumen',
+  //     {
+  //       "USER_ID": "175", // force hardcode
+  //       "CAR": car,
+  //     },
+  //   );
+  //
+  //   if (response == null) {
+  //     return [];
+  //   }
+  //
+  //   if (response is List) {
+  //     return response
+  //         .map((e) => PebDokumenResponseModel.fromJson(e))
+  //         .toList();
+  //   } else {
+  //     throw Exception("Format response tidak sesuai");
+  //   }
+  // }
 }

@@ -3,8 +3,14 @@ import '../services/api_service.dart';
 import '../securestorage/secure_storage_service.dart';
 
 class AuthRepository {
-  final ApiService _apiService = ApiService();
-  final SecureStorageService _storageService = SecureStorageService();
+  final ApiService _apiService;
+  final SecureStorageService _storageService;
+
+  AuthRepository({
+    ApiService? apiService,
+    SecureStorageService? storageService,
+  })  : _apiService = apiService ?? ApiService(),
+        _storageService = storageService ?? SecureStorageService();
 
   Future<LoginResponseModel> login({
     required String email,
