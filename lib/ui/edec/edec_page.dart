@@ -84,7 +84,7 @@ class _EdecPageState extends State<EdecPage>
           'PEB': data.peb,
           // 'PKBE': data.pkbe,
           'PIBK': data.pibk,
-          'TPB': 187,
+          'TPB': 0,
         };
         isLoading = false;
       });
@@ -436,20 +436,21 @@ class _EdecPageState extends State<EdecPage>
                           context,
                           MaterialPageRoute(builder: (context) => const PibkHistoryListPage()),
                         );
-                      } else if (title == 'TPB') {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const TpbHistoryListPage()),
-                        );
-                      }
                       // } else if (title == 'TPB') {
-                      //   ScaffoldMessenger.of(context).showSnackBar(
-                      //     const SnackBar(
-                      //       content: Text('TPB Details masih dalam pengembangan'),
-                      //     ),
+                      //   Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (context) => const TpbHistoryListPage()),
                       //   );
                       // }
+                      } else if (title == 'TPB') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: AppColors.customColorRed,
+                            content: Text('TPB Details masih dalam tahap pengembangan'),
+                          ),
+                        );
+                      }
                     },
                     // style: ElevatedButton.styleFrom(
                     //   backgroundColor: AppColors.customColorRed,

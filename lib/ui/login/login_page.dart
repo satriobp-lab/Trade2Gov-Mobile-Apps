@@ -19,6 +19,33 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscurePassword = true;
 
   Future<void> _handleLogin() async {
+
+    // VALIDASI DULU SEBELUM CALL API
+    if (LoginController.emailController.text.trim().isEmpty ||
+        LoginController.passwordController.text.trim().isEmpty) {
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Email dan password harus diisi terlebih dahulu.",
+            style: GoogleFonts.roboto(
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: const EdgeInsets.all(10),
+        ),
+      );
+
+      return; // stop disini supaya API tidak dipanggil
+    }
+
+    // kalau valid baru login
     setState(() => _isLoading = true);
 
     await LoginController.login(

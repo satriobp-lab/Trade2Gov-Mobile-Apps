@@ -48,10 +48,31 @@ class LoginController {
         ),
       );
     } catch (e) {
+      String message = "Terjadi kesalahan. Silakan coba lagi.";
+
+      if (e.toString().contains("NO_INTERNET")) {
+        message = "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.";
+      }
+      else if (e.toString().toLowerCase().contains("password") ||
+          e.toString().toLowerCase().contains("login")) {
+        message = "Email atau password yang Anda masukkan salah.";
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString()),
+          content: Text(
+            message,
+            style: GoogleFonts.roboto(
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: const EdgeInsets.all(10),
         ),
       );
     } finally {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class ApiService {
@@ -8,20 +9,28 @@ class ApiService {
       String endpoint,
       Map<String, dynamic> body,
       ) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/$endpoint'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(body),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/$endpoint'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      ).timeout(const Duration(seconds: 15));
 
-    final decoded = jsonDecode(response.body);
+      final decoded = jsonDecode(response.body);
 
-    if (response.statusCode == 200 && decoded['status'] == 'OK') {
-      return decoded;
-    } else {
-      throw Exception(decoded['desc'] ?? 'Login gagal');
+      if (response.statusCode == 200 && decoded['status'] == 'OK') {
+        return decoded;
+      } else {
+        throw Exception(decoded['desc'] ?? 'LOGIN_FAILED');
+      }
+    } on SocketException {
+      throw Exception("NO_INTERNET");
+    } on HttpException {
+      throw Exception("SERVER_ERROR");
+    } on FormatException {
+      throw Exception("BAD_RESPONSE");
     }
   }
 
