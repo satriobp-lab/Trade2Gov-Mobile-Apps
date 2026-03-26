@@ -27,6 +27,7 @@ class HomePage extends StatefulWidget {
   final VoidCallback onOpenKurs;
   final VoidCallback onOpenTracking;
   final VoidCallback onOpenEdec;
+  final Map<String, GlobalKey> bottomNavKeys;
 
 
   const HomePage({
@@ -35,6 +36,7 @@ class HomePage extends StatefulWidget {
     required this.onOpenKurs,
     required this.onOpenTracking,
     required this.onOpenEdec,
+    required this.bottomNavKeys,
   });
 
 
@@ -43,7 +45,25 @@ class HomePage extends StatefulWidget {
 }
 
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+  //
+
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  int _guideStep = 0;
+
+  late List<Map<String, dynamic>> _guides;
+  OverlayEntry? _currentGuide;
+
+  final GlobalKey _burgerKey = GlobalKey();
+  final GlobalKey _notifyKey = GlobalKey();
+  final GlobalKey _kursKey = GlobalKey();
+  final GlobalKey _trackingKey = GlobalKey();
+  final GlobalKey _informationKey = GlobalKey();
+  final GlobalKey _edecKey = GlobalKey();
+  //
+
   //untuk menu Kurs / Tracking / Information
   int _activeMenu = -1;
   int _activeProduct = -1;
@@ -61,9 +81,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _showWelcomeSnackbar();
 
-    _profile = AppCache.profile; // ambil dari cache
+    _profile = AppCache.profile;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkFirstLaunchGuide();
+    });
 
     if (AppCache.billingList.isNotEmpty) {
       _latestBilling = AppCache.billingList.first;
@@ -71,8 +94,28 @@ class _HomePageState extends State<HomePage> {
     } else {
       _isBillingLoading = false;
     }
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = Tween<double>(
+      begin: 8,
+      end: 18,
+    ).animate(
+      CurvedAnimation(
+        parent: _pulseController,
+        curve: Curves.easeInOut,
+      ),
+    );
   }
 
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -143,6 +186,7 @@ class _HomePageState extends State<HomePage> {
         elevation: 0,
         leading: Builder(
           builder: (context) => IconButton(
+            key: _burgerKey,
             icon: const Icon(
               Icons.menu_outlined,
               color: AppColors.customColorRed,
@@ -174,6 +218,7 @@ class _HomePageState extends State<HomePage> {
           //   },
           // ),
           IconButton(
+            key: _notifyKey,
             icon: const Icon(
               Icons.notifications_on_outlined,
               color: AppColors.customColorRed,
@@ -228,9 +273,9 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildMenuIcon(Icons.attach_money_outlined, 'Kurs', 0),
-                  _buildMenuIcon(Icons.location_on_outlined, 'Tracking', 1),
-                  _buildMenuIcon(Icons.newspaper_outlined, 'Information', 2),
+                  _buildMenuIcon(Icons.attach_money_outlined, 'Kurs', 0, key: _kursKey),
+                  _buildMenuIcon(Icons.location_on_outlined, 'Tracking', 1, key: _trackingKey),
+                  _buildMenuIcon(Icons.newspaper_outlined, 'Information', 2, key: _informationKey),
                 ],
               ),
             ),
@@ -273,6 +318,7 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(height: 10),
 
                         InkWell(
+                          key: _edecKey,
                           onTapDown: (_) {
                             setState(() => _activeProduct = 0);
                           },
@@ -436,13 +482,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildMenuIcon(IconData icon, String label, int index) {
+  Widget _buildMenuIcon(IconData icon, String label, int index, {Key? key}) {
     final bool isActive = _activeMenu == index;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         InkResponse(
+          key: key,
           onTapDown: (_) {
             setState(() => _activeMenu = index);
           },
@@ -803,5 +850,235 @@ class _HomePageState extends State<HomePage> {
           (m) => '${m[1]}.',
     )}';
   }
+
+  Future<void> _checkFirstLaunchGuide() async {
+    final storage = SecureStorageService();
+    final isFirst = await storage.isFirstLaunch();
+
+    if (!isFirst) return;
+
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    if (!mounted) return;
+
+    _showGuideSequence();
+
+    await storage.setFirstLaunchDone();
+  }
+
+  void _showGuideSequence() {
+
+    _guides = [
+      {"key": _burgerKey, "text": "Gunakan menu ini untuk membuka navigasi utama aplikasi."},
+      {"key": _notifyKey, "text": "Di sini Anda dapat melihat notifikasi terbaru dari sistem."},
+      {"key": _kursKey, "text": "Menu ini menampilkan informasi kurs pajak terbaru."},
+      {"key": _trackingKey, "text": "Gunakan menu ini untuk melakukan tracking dokumen kepabeanan Anda."},
+      {"key": _informationKey, "text": "Berisi berbagai berita dan informasi terbaru terkait layanan."},
+      {"key": _edecKey, "text": "Akses layanan e-Declaration untuk mengelola dokumen kepabeanan Anda."},
+      {"key": widget.bottomNavKeys["home"], "text": "Halaman utama aplikasi tempat Anda melihat ringkasan informasi."},
+      {"key": widget.bottomNavKeys["billing"], "text": "Di sini Anda dapat melihat dan memeriksa tagihan layanan Anda."},
+      {"key": widget.bottomNavKeys["call center"], "text": "Hubungi tim dukungan kami melalui menu Call Center."},
+      {"key": widget.bottomNavKeys["mailbox"], "text": "Cek pesan atau pemberitahuan sistem yang dikirim kepada Anda."},
+      {"key": widget.bottomNavKeys["profile"], "text": "Kelola informasi akun dan profil Anda melalui menu ini."},
+    ];
+
+    _guideStep = 0;
+
+    _showGuideStep();
+  }
+
+  void _showGuideStep() {
+
+    if (_guideStep >= _guides.length) {
+      _currentGuide?.remove();
+      return;
+    }
+
+    final item = _guides[_guideStep];
+
+    final key = item["key"] as GlobalKey;
+    final text = item["text"] as String;
+
+    _showGuide(key, text);
+  }
+
+  void _showGuide(GlobalKey key, String text) {
+    final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final position = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    double textTop;
+    bool showBelow = position.dy < screenHeight * 0.5;
+    bool isBottomArea = position.dy > screenHeight * 0.75;
+
+    const double textSpacing = 30; // jarak aman antara highlight dan text
+
+    if (showBelow) {
+      // highlight di atas → text di bawah
+      textTop = position.dy + size.height + textSpacing;
+    } else {
+      // highlight di bawah → text di atas
+      textTop = position.dy - textSpacing - 60;
+    }
+
+    _currentGuide?.remove();
+
+    _currentGuide = OverlayEntry(
+      builder: (context) => AnimatedBuilder(
+        animation: _pulseAnimation,
+        builder: (context, child) {
+          bool isIconOnly = key == _burgerKey || key == _notifyKey;
+          return Stack(
+            children: [
+
+              CustomPaint(
+                size: MediaQuery.of(context).size,
+                painter: GuidePainter(
+                  rect: Rect.fromLTWH(
+                    position.dx - 6,
+                    position.dy - 6,
+                    size.width + 12,
+                    size.height + (isIconOnly ? 12 : 30),
+                  ),
+                  pulse: _pulseAnimation.value,
+                ),
+              ),
+
+              // TEXT PENJELASAN
+              Positioned(
+                top: textTop,
+                left: 30,
+                right: 30,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Text(
+                    text,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.lato(
+                      color: Colors.white,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                      height: 1.6,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ),
+              ),
+
+              // SKIP BUTTON
+              Positioned(
+                top: isBottomArea ? 50 : null,
+                bottom: isBottomArea ? null : 40,
+                left: 20,
+                child: TextButton(
+                  onPressed: () {
+                    _currentGuide?.remove();
+                  },
+                  child: Text(
+                    "Skip",
+                    style: GoogleFonts.lato(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ),
+              ),
+
+              // NEXT BUTTON
+              Positioned(
+                top: isBottomArea ? 50 : null,
+                bottom: isBottomArea ? null : 40,
+                right: 20,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  onPressed: () {
+                    _guideStep++;
+                    _showGuideStep();
+                  },
+                  child: Text(
+                    _guideStep == _guides.length - 1 ? "Finish" : "Next",
+                    style: GoogleFonts.lato(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    Overlay.of(context).insert(_currentGuide!);
+  }
 }
 
+class GuidePainter extends CustomPainter {
+
+  final Rect rect;
+  final double pulse;
+
+  GuidePainter({
+    required this.rect,
+    required this.pulse,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+
+    final overlayPaint = Paint()
+      ..color = Colors.black.withOpacity(0.85);
+
+    final clearPaint = Paint()
+      ..blendMode = BlendMode.clear;
+
+    canvas.saveLayer(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Paint(),
+    );
+
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      overlayPaint,
+    );
+
+    final rrect = RRect.fromRectAndRadius(
+      rect.inflate(10),
+      const Radius.circular(14),
+    );
+
+    canvas.drawRRect(rrect, clearPaint);
+
+    canvas.restore();
+
+    // PULSE GLOW
+    final glowPaint = Paint()
+      ..color = Colors.white.withOpacity(0.45)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = pulse;
+
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        rect.inflate(pulse),
+        const Radius.circular(16),
+      ),
+      glowPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant GuidePainter oldDelegate) => true;
+}

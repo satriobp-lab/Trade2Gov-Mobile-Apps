@@ -28,6 +28,12 @@ class MainNavigation extends StatefulWidget {
 }
 
 class _MainNavigationState extends State<MainNavigation> {
+  final GlobalKey _homeNavKey = GlobalKey();
+  final GlobalKey _billingNavKey = GlobalKey();
+  final GlobalKey _callCenterNavKey = GlobalKey();
+  final GlobalKey _mailboxNavKey = GlobalKey();
+  final GlobalKey _profileNavKey = GlobalKey();
+
   late int _selectedIndex;
   HomeSection _homeSection = HomeSection.home;
 
@@ -62,12 +68,19 @@ class _MainNavigationState extends State<MainNavigation> {
         return const EdecPage();
       case HomeSection.home:
       default:
-        return HomePage(
-          onOpenInformation: _openInformation,
-          onOpenKurs: _openKurs,
-          onOpenTracking: _openTracking,
-          onOpenEdec: _openEdec,
-        );
+      return HomePage(
+        onOpenInformation: _openInformation,
+        onOpenKurs: _openKurs,
+        onOpenTracking: _openTracking,
+        onOpenEdec: _openEdec,
+        bottomNavKeys: {
+          "home": _homeNavKey,
+          "billing": _billingNavKey,
+          "call center": _callCenterNavKey,
+          "mailbox": _mailboxNavKey,
+          "profile": _profileNavKey,
+        },
+      );
     }
   }
 
@@ -128,25 +141,25 @@ class _MainNavigationState extends State<MainNavigation> {
           fontWeight: FontWeight.bold,
           fontSize: 12,
         ),
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
+            icon: Icon(Icons.home_rounded, key: _homeNavKey),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long_rounded),
+            icon: Icon(Icons.receipt_long_rounded, key: _billingNavKey),
             label: 'Billing',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.support_agent_rounded),
+            icon: Icon(Icons.support_agent_rounded, key: _callCenterNavKey),
             label: 'Call Center',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.email_outlined),
+            icon: Icon(Icons.email_outlined, key: _mailboxNavKey),
             label: 'Mailbox',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
+            icon: Icon(Icons.person_outline, key: _profileNavKey),
             label: 'Profile',
           ),
         ],

@@ -10,6 +10,18 @@ class SecureStorageService {
   static const _keyEmail = 'email';
   static const _keyName = 'name';
 
+  // ===== FIRST LAUNCH GUIDE =====
+  static const _keyFirstLaunchDone = 'first_launch_done';
+
+  Future<bool> isFirstLaunch() async {
+    final value = await _storage.read(key: _keyFirstLaunchDone);
+    return value == null; // jika null berarti belum pernah
+  }
+
+  Future<void> setFirstLaunchDone() async {
+    await _storage.write(key: _keyFirstLaunchDone, value: 'true');
+  }
+
   Future<String?> getUserId() async {
     return await _storage.read(key: _keyUserId);
   }
