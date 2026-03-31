@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/app_cache.dart';
 import '../home/home_page.dart';
 import '../billing/billing_page.dart';
 import '../callcenter/call_center_page.dart';
@@ -18,6 +19,7 @@ class NotifyPage extends StatefulWidget {
 
 class _NotifyPageState extends State<NotifyPage> {
   int _selectedIndex = 0;
+  List<Map<String, dynamic>> notifications = [];
 
   // List halaman untuk Bottom Navigation
   final List<Widget> _pages = [
@@ -79,7 +81,7 @@ class NotifyContent extends StatefulWidget {
 
 class _NotifyContentState extends State<NotifyContent> {
 
-  List<Map<String, String>> notifications = [];
+  List<Map<String, dynamic>> notifications = [];
 
   @override
   void initState() {
@@ -87,15 +89,16 @@ class _NotifyContentState extends State<NotifyContent> {
     _checkFirstInstall();
   }
 
+  static const _keyNotificationRead = 'notification_read';
   Future<void> _checkFirstInstall() async {
     final prefs = await SharedPreferences.getInstance();
 
     String? installDate = prefs.getString('install_date');
+    bool isRead = prefs.getBool(_keyNotificationRead) ?? false;
 
     if (installDate == null) {
       final now = DateTime.now();
       installDate = '${now.day}/${now.month}/${now.year}';
-
       await prefs.setString('install_date', installDate);
     }
 
@@ -104,7 +107,8 @@ class _NotifyContentState extends State<NotifyContent> {
         'title': 'Selamat Datang',
         'desc': 'Terima kasih telah mempercayai dan menggunakan aplikasi ini.',
         'time': installDate,
-        'type': 'info'
+        'type': 'info',
+        'read': isRead
       }
     ];
 
@@ -163,13 +167,49 @@ class _NotifyContentState extends State<NotifyContent> {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.done_all_rounded,
-              color: AppColors.customColorRed,
-            ),
-            onPressed: () {},
-          ),
+          Stack(
+            alignment: Alignment.topRight,
+            children: [
+              IconButton(
+                icon: const Icon(
+                  Icons.done_all_rounded,
+                  color: AppColors.customColorRed,
+                ),
+                  onPressed: () async {
+                    final prefs = await SharedPreferences.getInstance();
+
+                    setState(() {
+                      for (var item in notifications) {
+                        item['read'] = true;
+                      }
+                    });
+
+                    await prefs.setBool(_keyNotificationRead, true);
+                  }
+              ),
+
+              if (getUnreadCount() > 0)
+                Positioned(
+                  right: 6,
+                  top: 6,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      getUnreadCount().toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                )
+            ],
+          )
         ],
       ),
       body: notifications.isEmpty
@@ -186,7 +226,7 @@ class _NotifyContentState extends State<NotifyContent> {
     );
   }
 
-  Widget _buildNotificationItem(Map<String, String> item) {
+  Widget _buildNotificationItem(Map<String, dynamic> item) {
     IconData getIcon() {
       switch (item['type']) {
         case 'billing':
@@ -200,64 +240,92 @@ class _NotifyContentState extends State<NotifyContent> {
       }
     }
 
-    return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: AppBox.primary(),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.customColorRed.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
+    return GestureDetector(
+      onTap: () async {
+        final prefs = await SharedPreferences.getInstance();
+
+        setState(() {
+          item['read'] = true;
+        });
+
+        await prefs.setBool(_keyNotificationRead, true);
+      },
+      child: Container(
+        padding: const EdgeInsets.all(15),
+        decoration: AppBox.primary(),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            /// DOT UNREAD INDICATOR
+            if (item['read'] == false)
+              Container(
+                margin: const EdgeInsets.only(top: 6, right: 8),
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+              ),
+
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.customColorRed.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                getIcon(),
+                color: AppColors.customColorRed,
+                size: 24,
+              ),
             ),
-            child: Icon(
-              getIcon(),
-              color: AppColors.customColorRed,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        item['title']!,
-                        style: GoogleFonts.lato(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.customColorGray,
+
+            const SizedBox(width: 15),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item['title'],
+                          style: GoogleFonts.lato(
+                            fontSize: 14,
+                            fontWeight: item['read']
+                                ? FontWeight.bold
+                                : FontWeight.w900,
+                            color: AppColors.customColorGray,
+                          ),
                         ),
                       ),
-                    ),
-                    Text(
-                      item['time']!,
-                      style: GoogleFonts.lato(
-                        fontSize: 11,
-                        color: Colors.grey[500],
+                      Text(
+                        item['time'],
+                        style: GoogleFonts.lato(
+                          fontSize: 11,
+                          color: Colors.grey[500],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  item['desc']!,
-                  style: GoogleFonts.roboto(
-                    fontSize: 12,
-                    color: AppColors.customColorGray.withOpacity(0.8),
-                    height: 1.4,
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 5),
+                  Text(
+                    item['desc'],
+                    style: GoogleFonts.roboto(
+                      fontSize: 12,
+                      color: AppColors.customColorGray.withOpacity(0.8),
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -284,5 +352,9 @@ class _NotifyContentState extends State<NotifyContent> {
         ],
       ),
     );
+  }
+
+  int getUnreadCount() {
+    return notifications.where((n) => n['read'] == false).length;
   }
 }

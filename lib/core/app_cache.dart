@@ -17,4 +17,6 @@ class AppCache {
   static List<PibHistoryListResponseModel> pibHistoryList = [];
   static List<PebHistoryListResponseModel> pebHistoryList = [];
   static List<PibkHistoryListResponseModel> pibkHistoryList = [];
+
+  static bool notificationRead = false;
 }
