@@ -1,4 +1,4 @@
-import 'dart:convert'; // <-- tambahkan ini
+import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trade2gov/data/models/mailbox_response_model.dart';
 
@@ -47,7 +47,10 @@ class SecureStorageService {
   }
 
   Future<void> clearSession() async {
-    await _storage.deleteAll();
+    await _storage.delete(key: _keyUserId);
+    await _storage.delete(key: _keyUserHash);
+    await _storage.delete(key: _keyEmail);
+    await _storage.delete(key: _keyName);
   }
 
   Future<String?> getUserName() async {
