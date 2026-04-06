@@ -366,13 +366,11 @@ class _PibkHeaderDetailsPageState
 
     String result = value.trim();
 
-    // ✅ Hilangkan prefix angka seperti "1 - Laut"
     result = result.replaceFirst(
       RegExp(r'^\d+\s*-\s*'),
       '',
     );
 
-    // ✅ Jika mau tetap uppercase (kantor, negara, dll)
     if (keepUppercase) {
       return result.toUpperCase();
     }
@@ -403,8 +401,6 @@ class _PibkHeaderDetailsPageState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-
-            // 🔴 Circle Background
             Container(
               padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(

@@ -11,15 +11,13 @@ class AboutPage extends StatefulWidget {
 }
 
 class _AboutPageState extends State<AboutPage> {
-  // Inisialisasi index navigasi (biasanya 0 karena dibuka dari Home/Drawer)
+  // Inisialisasi index navigasi
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
-    // Jika user menekan item selain home, kita kembali ke MainNavigation
-    // dan biarkan MainNavigation yang menangani perpindahan tab.
     Navigator.pop(context);
   }
 
@@ -30,14 +28,12 @@ class _AboutPageState extends State<AboutPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Konten scrollable
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
                 child: Column(
                   children: [
                     const SizedBox(height: 10),
-                    // Judul Halaman
                     Text(
                       'About us',
                       style: GoogleFonts.lato(
@@ -47,23 +43,18 @@ class _AboutPageState extends State<AboutPage> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    // Garis Divider Atas
                     Container(
                       height: 1.5,
                       width: double.infinity,
                       color: AppColors.customColorRed.withOpacity(0.5),
                     ),
                     const SizedBox(height: 30),
-
-                    // Logo Pelindo (Tanpa Box)
                     Image.asset(
                       'assets/images/logo-pelindo.png',
                       height: 100,
                       fit: BoxFit.contain,
                     ),
                     const SizedBox(height: 30),
-
-                    // Box Street Address
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
@@ -79,7 +70,6 @@ class _AboutPageState extends State<AboutPage> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          // Divider Merah Tengah
                           Container(
                             height: 1.5,
                             width: 220,
@@ -99,8 +89,6 @@ class _AboutPageState extends State<AboutPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // Box Gmail (Centered)
                     Center(
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -122,8 +110,6 @@ class _AboutPageState extends State<AboutPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // Box WhatsApp (Centered)
                     Center(
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -180,7 +166,6 @@ class _AboutPageState extends State<AboutPage> {
               ),
             ),
 
-            // Tombol Back di Kiri Bawah (Tetap di atas Bottom Navigation)
             Padding(
               padding: const EdgeInsets.only(left: 20, bottom: 10, top: 10),
               child: Align(

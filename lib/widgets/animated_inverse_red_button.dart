@@ -28,7 +28,6 @@ class _AnimatedInverseRedButtonState extends State<AnimatedInverseRedButton> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    // ukuran responsive tapi tetap konsisten
     final buttonWidth = widget.width ?? screenWidth * 0.35;
     final buttonHeight = widget.height ?? 45;
 

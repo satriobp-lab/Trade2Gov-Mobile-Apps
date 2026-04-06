@@ -42,7 +42,7 @@ class _PebHistoryListPageState extends State<PebHistoryListPage> {
   @override
   void dispose() {
     _searchController.dispose();
-    // ✅ Kembalikan navigation bar saat keluar
+    // Kembalikan navigation bar saat keluar
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
@@ -333,7 +333,7 @@ class _PebHistoryListPageState extends State<PebHistoryListPage> {
                 label: const Text("Refresh"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.customColorRed,
-                  foregroundColor: Colors.white, // <-- ini bikin icon + text putih
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

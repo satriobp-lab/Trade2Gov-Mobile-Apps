@@ -10,7 +10,7 @@ import '../../utils/app_colors.dart';
 import '../../widgets/edec_loader.dart';
 import '../../utils/app_box_decoration.dart';
 import 'PIB/summary/pib_summary_page.dart';
-import 'PEB/summary/peb_summary_page.dart'; // Import halaman PEB baru
+import 'PEB/summary/peb_summary_page.dart';
 import 'PKBE/summary/pkbe_summary_page.dart';
 import 'PIBK/summary/pibk_summary_page.dart';
 import 'TPB/summary/tpb_summary_page.dart';
@@ -57,7 +57,7 @@ class _EdecPageState extends State<EdecPage>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2), // ubah sesuai rasa
+      duration: const Duration(seconds: 2),
     );
 
     _animation = CurvedAnimation(
@@ -89,7 +89,7 @@ class _EdecPageState extends State<EdecPage>
         isLoading = false;
       });
 
-      // 🔥 START ANIMATION DI SINI
+      // START ANIMATION
       _controller.forward(from: 0);
 
     } catch (e) {
@@ -493,7 +493,6 @@ class PieRevealClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     final path = Path();
 
-    // ✅ Kalau sudah 100%, tampilkan full chart
     if (progress >= 0.999) {
       path.addRect(Rect.fromLTWH(0, 0, size.width, size.height));
       return path;

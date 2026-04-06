@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
     final isLoggedIn = await storage.isLoggedIn();
 
     if (isLoggedIn) {
-      return const AppLoaderPage(); // 👈 penting
+      return const AppLoaderPage();
     }
     return const LandingPage();
   }

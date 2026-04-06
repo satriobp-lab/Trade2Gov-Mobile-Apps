@@ -202,7 +202,7 @@ class _PibkHistoryListPageState extends State<PibkHistoryListPage> {
 
           const SizedBox(height: 8),
 
-          // Nama Importir (tidak caps semua)
+          // Nama Importir
           Text(
             toTitleCase(
               item.impNama?.isNotEmpty == true ? item.impNama! : '-',
@@ -267,7 +267,7 @@ class _PibkHistoryListPageState extends State<PibkHistoryListPage> {
         ),
         child: TextField(
           controller: _searchController,
-          style: GoogleFonts.roboto(fontSize: 14), // ✅ Sama seperti PEB
+          style: GoogleFonts.roboto(fontSize: 14),
           onChanged: _applyFlexibleSearch,
           onSubmitted: _applyFlexibleSearch,
           textInputAction: TextInputAction.search,

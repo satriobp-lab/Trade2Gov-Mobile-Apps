@@ -9,6 +9,7 @@ import '../profile/profile_page.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_box_decoration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../main_navigation.dart';
 
 class NotifyPage extends StatefulWidget {
   const NotifyPage({super.key});
@@ -31,18 +32,23 @@ class _NotifyPageState extends State<NotifyPage> {
   ];
 
   void _onItemTapped(int index) {
+
+    // jika klik HOME → kembali ke dashboard utama
     if (index == 0) {
-      // Jika menekan Home di nav bawah saat di page ini,
-      // bisa diarahkan kembali ke HomePage asli atau tetap di sini sebagai 'Home' versi notifikasi
-      // Untuk konsistensi navigasi sesuai permintaan Anda:
-      setState(() {
-        _selectedIndex = index;
-      });
-    } else {
-      setState(() {
-        _selectedIndex = index;
-      });
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const MainNavigation(initialIndex: 0),
+        ),
+            (route) => false,
+      );
+      return;
     }
+
+    // selain HOME tetap pakai IndexedStack
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override

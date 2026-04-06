@@ -34,21 +34,20 @@ class _PibDetailsMenuPageState extends State<PibDetailsMenuPage> {
   @override
   void initState() {
     super.initState();
-    // ⛔ Sembunyikan navigation bar bawah (immersive mode)
+    // Sembunyikan navigation bar bawah (immersive mode)
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
   @override
   void dispose() {
-    // ✅ Kembalikan navigation bar saat keluar page
+    // Kembalikan navigation bar saat keluar page
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Definisi Menu sesuai instruksi icon yang diberikan
-    final List<Map<String, dynamic>> menuItems = [
+    final List<Map<String, dynamic>> menuItems = [  
       {'label': 'Header', 'icon': Icons.web_rounded},
       {'label': 'Data Barang', 'icon': Icons.inventory_2_rounded},
       {'label': 'Dokumen', 'icon': Icons.description_rounded},
@@ -115,7 +114,7 @@ class _PibDetailsMenuPageState extends State<PibDetailsMenuPage> {
                 crossAxisCount: 3,
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 20,
-                childAspectRatio: 0.75, // Ruang untuk label di luar kotak
+                childAspectRatio: 0.75,
               ),
               itemCount: menuItems.length,
               itemBuilder: (context, index) {

@@ -30,7 +30,7 @@ class PibkPungutanDetailsPage extends StatelessWidget {
       "11": "BMIM",
       "12": "BMPB",
     };
-    // Struktur data pungutan
+    // dummy data pungutan
     final List<Map<String, dynamic>> pungutanList = [
       {
         'title': 'BM',
@@ -183,7 +183,6 @@ class PibkPungutanDetailsPage extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: AppBox.primary().copyWith(
-        // Jika Total, berikan sedikit nuansa berbeda pada border
         border: isTotal
             ? Border.all(color: AppColors.customColorRed, width: 2)
             : null,
@@ -228,7 +227,6 @@ class PibkPungutanDetailsPage extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: data.entries.map((entry) {
-                // Beri highlight warna hijau/merah jika ada nilainya (bukan '-')
                 bool hasValue = entry.value != '-';
 
                 return Padding(

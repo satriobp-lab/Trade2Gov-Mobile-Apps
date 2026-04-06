@@ -57,7 +57,7 @@ class _PibKemasanDetailsPageState extends State<PibKemasanDetailsPage> {
             ),
             const SizedBox(height: 4),
             Text(
-              widget.car, // ✅ tampilkan CAR asli
+              widget.car,
               style: GoogleFonts.lato(
                 fontSize: 13,
                 color: AppColors.customColorGray,
@@ -187,7 +187,7 @@ class _PibKemasanDetailsPageState extends State<PibKemasanDetailsPage> {
     );
   }
 
-  // Helper widget untuk baris detail (Konsisten dengan Dokumen Page)
+  // Helper widget untuk baris detail
   Widget _buildDetailRow(String label, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,

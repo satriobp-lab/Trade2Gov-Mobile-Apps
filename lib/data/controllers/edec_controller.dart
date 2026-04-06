@@ -8,7 +8,7 @@ class EdecController {
   static Future<EdecResponseModel> getDashboard() async {
     final data = await _repo.fetchDashboard();
 
-    AppCache.edecDashboard = data; // kita cache
+    AppCache.edecDashboard = data;
 
     return data;
   }

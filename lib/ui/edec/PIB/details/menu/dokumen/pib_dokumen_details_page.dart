@@ -57,7 +57,7 @@ class _PibDokumenDetailsPageState extends State<PibDokumenDetailsPage> {
             ),
             const SizedBox(height: 4),
             Text(
-              widget.car, // ✅ tampilkan CAR asli
+              widget.car,
               style: GoogleFonts.lato(
                 fontSize: 13,
                 color: AppColors.customColorGray,
@@ -110,7 +110,6 @@ class _PibDokumenDetailsPageState extends State<PibDokumenDetailsPage> {
                 child: Text("Tidak ada dokumen"));
           }
 
-          // 🔥 UI SAMA PERSIS seperti sebelumnya
           return ListView.builder(
             padding: const EdgeInsets.symmetric(
                 horizontal: 20, vertical: 20),
@@ -125,7 +124,6 @@ class _PibDokumenDetailsPageState extends State<PibDokumenDetailsPage> {
                   crossAxisAlignment:
                   CrossAxisAlignment.start,
                   children: [
-                    // ICON + TITLE
                     Padding(
                       padding:
                       const EdgeInsets.all(16.0),

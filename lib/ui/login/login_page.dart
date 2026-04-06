@@ -20,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _handleLogin() async {
 
-    // VALIDASI DULU SEBELUM CALL API
+    // VALIDASI SEBELUM CALL API
     if (LoginController.emailController.text.trim().isEmpty ||
         LoginController.passwordController.text.trim().isEmpty) {
 
@@ -42,10 +42,9 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
 
-      return; // stop disini supaya API tidak dipanggil
+      return;
     }
 
-    // kalau valid baru login
     setState(() => _isLoading = true);
 
     await LoginController.login(
@@ -314,7 +313,7 @@ class WaveClipper extends CustomClipper<Path> {
   WaveClipper(this.waveHeight, this.offset);
 
   @override
-  Path getClip(Size size) { // <--- Perbaikan di sini: getClip, bukan getChild
+  Path getClip(Size size) {
     Path path = Path();
 
     // Mulai dari pojok bawah kiri

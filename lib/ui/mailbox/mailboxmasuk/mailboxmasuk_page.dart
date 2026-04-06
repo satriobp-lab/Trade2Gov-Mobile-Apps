@@ -35,7 +35,7 @@ class MailboxMasukPage extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
             onTap: () async {
               await _showPreview(context, mail.message);
-              onRead(mail); // setelah dialog ditutup
+              onRead(mail); // after dialog ditutup
             },
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -47,7 +47,7 @@ class MailboxMasukPage extends StatelessWidget {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: AppColors.customColorRed.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8), // rectangular
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
                       Icons.mark_email_unread_outlined,

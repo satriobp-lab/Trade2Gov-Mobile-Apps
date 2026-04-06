@@ -1,14 +1,14 @@
 class PibHistoryListResponseModel {
   final String noAju;
   final String? tglAju;
-  final String? pibNo;      // ✅ Nomor Daftar
-  final String? pibTg;      // ✅ Tanggal Daftar
+  final String? pibNo;
+  final String? pibTg;
   final String? kdKpbc;
   final String? urKpbc;
   final String? indNama;
   final int jmBrg;
   final int jmCont;
-  final String? car; // 🔥 TAMBAHKAN INI
+  final String? car;
 
   PibHistoryListResponseModel({
     required this.noAju,
@@ -27,8 +27,8 @@ class PibHistoryListResponseModel {
     return PibHistoryListResponseModel(
       noAju: json['NOAJU'] ?? '',
       tglAju: json['TGLAJU'],
-      pibNo: json['PIBNO'],      // ✅ mapping
-      pibTg: json['PIBTG'],      // ✅ mapping
+      pibNo: json['PIBNO'],
+      pibTg: json['PIBTG'],
       kdKpbc: json['KDKPBC'],
       urKpbc: json['URKPBC'],
       indNama: json['INDNAMA'],

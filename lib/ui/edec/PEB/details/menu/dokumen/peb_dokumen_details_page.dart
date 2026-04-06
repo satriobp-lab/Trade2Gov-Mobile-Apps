@@ -226,7 +226,7 @@ class _PebDokumenDetailsPageState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 130, // Lebar tetap untuk label agar titik dua sejajar
+          width: 130,
           child: Text(
             label,
             style: GoogleFonts.roboto(

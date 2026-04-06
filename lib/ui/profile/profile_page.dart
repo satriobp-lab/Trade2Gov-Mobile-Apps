@@ -82,7 +82,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   child: Column(
                     children: [
-                      /// 🔥 BASIC INFO
                       Text(
                         profile?.nama ?? '-',
                         style: GoogleFonts.lato(
@@ -117,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
 
-                      /// 🔥 COMPANY DETAIL
+                      /// COMPANY DETAIL
                       _buildProfileInfoRow(
                           'Nama Perusahaan',
                         _toTitleCase(profile?.namaPerusahaan),
@@ -155,7 +154,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
 
-                      /// 🔥 VERSION
+                      /// VERSION
                       Text(
                         'Version Mobile Apps',
                         style: GoogleFonts.lato(
@@ -190,7 +189,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
 
-                /// 🔥 PROFILE IMAGE
+                /// PROFILE IMAGE
                 Positioned(
                   top: 0,
                   child: Container(
@@ -225,7 +224,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  /// 🔥 Helper Row
+  /// Helper Row
   Widget _buildProfileInfoRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -273,7 +272,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  /// 🔥 Fallback Mapping
+  /// Fallback Mapping
   String _mapBidangUsaha(int? id) {
     switch (id) {
       case 1:

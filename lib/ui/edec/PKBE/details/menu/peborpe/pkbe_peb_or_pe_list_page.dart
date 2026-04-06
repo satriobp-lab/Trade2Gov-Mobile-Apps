@@ -9,7 +9,6 @@ class PkbePebOrPeListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Simulasi data list
     final List<Map<String, String>> pebList = [
       {
         'kpbc': '040300',
@@ -87,7 +86,6 @@ class PkbePebOrPeListPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. BAGIAN HEADER (Circle Icon + Info)
                 Row(
                   children: [
                     Container(
@@ -134,7 +132,6 @@ class PkbePebOrPeListPage extends StatelessWidget {
                 Divider(color: AppColors.customColorRed.withOpacity(0.4)),
                 const SizedBox(height: 12),
 
-                // 2. BAGIAN KONTEN (Grid Field Data)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -165,7 +162,6 @@ class PkbePebOrPeListPage extends StatelessWidget {
                 Divider(color: AppColors.customColorRed.withOpacity(0.4)),
                 const SizedBox(height: 12),
 
-                // 3. BAGIAN BUTTON (View Details di Paling Bawah)
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -174,7 +170,7 @@ class PkbePebOrPeListPage extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => PkbePebOrPeDetailsPage(
-                            data: item, // kirim data list ke halaman detail
+                            data: item,
                           ),
                         ),
                       );

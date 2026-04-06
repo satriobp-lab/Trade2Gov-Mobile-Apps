@@ -45,15 +45,15 @@ class HeaderData {
 
   final String pasokNama;
   final String pasokAlmt;
-  final String pasokNeg; // ✅ TAMBAH
+  final String pasokNeg;
   final String urPasokNeg;
 
   final String penjNama;
   final String penjAlmt;
   final String penjNeg;
 
-  final String apiKd; // ✅ TAMBAH
-  final String apiNo; // ✅ TAMBAH
+  final String apiKd;
+  final String apiNo;
 
   final String moda;
   final String angkutNama;
@@ -88,13 +88,13 @@ class HeaderData {
     required this.impNpwp,
     required this.pasokNama,
     required this.pasokAlmt,
-    required this.pasokNeg,   // ✅ TAMBAH
+    required this.pasokNeg,
     required this.urPasokNeg,
     required this.penjNama,
     required this.penjAlmt,
     required this.penjNeg,
-    required this.apiKd,      // ✅ TAMBAH
-    required this.apiNo,      // ✅ TAMBAH
+    required this.apiKd,
+    required this.apiNo,
     required this.moda,
     required this.angkutNama,
     required this.angkutNo,
@@ -129,13 +129,13 @@ class HeaderData {
       impNpwp: json['IMPNPWP'] ?? '',
       pasokNama: json['PASOKNAMA'] ?? '',
       pasokAlmt: json['PASOKALMT'] ?? '',
-      pasokNeg: json['PASOKNEG'] ?? '', // ✅ TAMBAH
+      pasokNeg: json['PASOKNEG'] ?? '',
       urPasokNeg: json['URPASOKNEG'] ?? '',
       penjNama: json['PENJNAMA'] ?? '',
       penjAlmt: json['PENJALMT'] ?? '',
       penjNeg: json['PENJNEG'] ?? '',
-      apiKd: json['APIKD'] ?? '',       // ✅ TAMBAH
-      apiNo: json['APINO'] ?? '',       // ✅ TAMBAH
+      apiKd: json['APIKD'] ?? '',
+      apiNo: json['APINO'] ?? '',
       moda: json['MODA'] ?? '',
       angkutNama: json['ANGKUTNAMA'] ?? '',
       angkutNo: json['ANGKUTNO'] ?? '',
@@ -152,9 +152,6 @@ class HeaderData {
       pelTransitUr: json['PELTRANSITUR']?.toString() ?? '',
       urKdFas: json['URKDFAS']?.toString() ?? '',
       urTmptBn: json['URTMPTBN']?.toString() ?? '',
-
-
-
     );
   }
 }

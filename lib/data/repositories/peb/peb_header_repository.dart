@@ -6,7 +6,7 @@ class PebHeaderRepository {
   final ApiService _api = ApiService();
   final SecureStorageService _storage = SecureStorageService();
 
-  // 🔥 KHUSUS IMPLEMENTASI SESUAI USER LOGIN (JANGAN DIHAPUS - NANTI DIPAKAI)
+  // KHUSUS IMPLEMENTASI SESUAI USER LOGIN (JANGAN DIHAPUS - NANTI DIPAKAI)
   /*
   Future<PebHeaderResponseModel?> fetchPebHeader(String car) async {
 
@@ -29,7 +29,6 @@ class PebHeaderRepository {
 
         final model = PebHeaderResponseModel.fromJson(header);
 
-        // 🔥 ambil mapping dari root response
         final jneksMap = response['JNEKS'] as Map<String, dynamic>?;
         final kateksMap = response['KATEKS'] as Map<String, dynamic>?;
         final jndagMap = response['JNDAG'] as Map<String, dynamic>?;
@@ -67,8 +66,6 @@ class PebHeaderRepository {
           kateks: model.kateks,
           jndag: model.jndag,
           jnbyr: model.jnbyr,
-
-          // 🔥 description baru
           urJneks: getDescription(model.jneks, jneksMap),
           urKateks: getDescription(model.kateks, kateksMap),
           urJndag: getDescription(model.jndag, jndagMap),
@@ -76,8 +73,6 @@ class PebHeaderRepository {
           urStatusH: getDescription(model.statusH, statusMap),
           urModa: getDescription(model.moda, modaMap),
           urKmdt: getDescription(model.kmdt, kmdtMap),
-
-          // lanjutkan semua field lain
           npwpEks: model.npwpEks,
           namaEks: model.namaEks,
           alamatEks: model.alamatEks,
@@ -131,7 +126,7 @@ class PebHeaderRepository {
   }
   */
 
-  // 🔥 SEMENTARA FORCE USER 175
+  // FORCE USER 175
   Future<PebHeaderResponseModel?> fetchPebHeader(String car) async {
 
     final userId = await _storage.getUserId();
@@ -156,7 +151,7 @@ class PebHeaderRepository {
 
         final model = PebHeaderResponseModel.fromJson(header);
 
-        // 🔥 ambil mapping dari root response
+        // ambil mapping dari root response
         final jneksMap = response['JNEKS'] as Map<String, dynamic>?;
         final kateksMap = response['KATEKS'] as Map<String, dynamic>?;
         final jndagMap = response['JNDAG'] as Map<String, dynamic>?;
@@ -175,7 +170,6 @@ class PebHeaderRepository {
           final fullValue = map[code];
           if (fullValue == null) return null;
 
-          // buang angka depan "1 - "
           return fullValue.toString().replaceFirst(
             RegExp(r'^\d+\s*-\s*'),
             '',
@@ -183,7 +177,6 @@ class PebHeaderRepository {
         }
 
         return PebHeaderResponseModel(
-          // semua field lama
           car: model.car,
           kdKtr: model.kdKtr,
           urKdKtr: model.urKdKtr,
@@ -195,8 +188,6 @@ class PebHeaderRepository {
           kateks: model.kateks,
           jndag: model.jndag,
           jnbyr: model.jnbyr,
-
-          // 🔥 description baru
           urJneks: getDescription(model.jneks, jneksMap),
           urKateks: getDescription(model.kateks, kateksMap),
           urJndag: getDescription(model.jndag, jndagMap),
@@ -204,8 +195,6 @@ class PebHeaderRepository {
           urStatusH: getDescription(model.statusH, statusMap),
           urModa: getDescription(model.moda, modaMap),
           urKmdt: getDescription(model.kmdt, kmdtMap),
-
-          // lanjutkan semua field lain
           npwpEks: model.npwpEks,
           namaEks: model.namaEks,
           alamatEks: model.alamatEks,

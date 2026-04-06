@@ -39,7 +39,7 @@ class BillingPage extends StatelessWidget {
         ),
       ),
 
-      /// 🔥 DATA FROM API
+      /// DATA FROM API
       body: AppCache.billingList.isEmpty
           ? Center(
         child: Text(
@@ -71,25 +71,6 @@ String formatRupiah(int value) {
         (m) => '${m[1]}.',
   )}';
 }
-
-
-// final List<Map<String, String>> billingData = [
-//   {
-//     'title': 'Tagihan Terbit',
-//     'period': 'December 2025',
-//     'amount': 'Rp 13.281.740',
-//   },
-//   {
-//     'title': 'Tagihan Terbit',
-//     'period': 'November 2025',
-//     'amount': 'Rp 3.281.740',
-//   },
-//   {
-//     'title': 'Tagihan Terbit',
-//     'period': 'October 2025',
-//     'amount': 'Rp 3.281.740',
-//   },
-// ];
 
 class _BillingCard extends StatelessWidget {
   final String title;

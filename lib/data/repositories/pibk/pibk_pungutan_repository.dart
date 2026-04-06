@@ -22,7 +22,6 @@ class PibkPungutanRepository {
       return null;
     }
 
-    // kalau backend balikin []
     if (response is List) {
       if (response.isEmpty) {
         return null;
@@ -33,6 +32,6 @@ class PibkPungutanRepository {
       return PibkPungutanResponseModel.fromJson(response);
     }
 
-    return null; // jangan throw exception lagi
+    return null;
   }
 }

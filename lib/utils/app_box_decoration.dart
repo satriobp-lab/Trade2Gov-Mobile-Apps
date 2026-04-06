@@ -13,7 +13,6 @@ class AppBox {
         width: 2,
       ),
 
-      // SHADOW HALUS (enterprise look)
       boxShadow: [
         BoxShadow(
           color: Colors.black.withOpacity(0.15),

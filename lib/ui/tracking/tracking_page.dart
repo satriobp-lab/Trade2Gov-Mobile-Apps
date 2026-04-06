@@ -88,7 +88,7 @@ class _TrackingPageState extends State<TrackingPage> {
 
                     Divider(color: AppColors.customColorRed.withOpacity(0.5), thickness: 1),
 
-                    // Tombol Aksi
+                    // action button
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -292,7 +292,7 @@ class _TrackingPageState extends State<TrackingPage> {
                     //   return;
                     // }
 
-                    // 🔥 Maintenance Mode
+                    // Maintenance Mode
                     showDialog(
                       context: context,
                       builder: (context) => AlertDialog(

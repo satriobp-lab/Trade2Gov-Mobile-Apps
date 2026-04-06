@@ -19,20 +19,20 @@ class _PkbeDetailsMenuPageState extends State<PkbeDetailsMenuPage> {
   @override
   void initState() {
     super.initState();
-    // ⛔ Sembunyikan navigation bar bawah (immersive mode)
+    // Sembunyikan navigation bar bawah (immersive mode)
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
   @override
   void dispose() {
-    // ✅ Kembalikan navigation bar saat keluar page
+    // Kembalikan navigation bar saat keluar page
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Definisi Menu sesuai instruksi icon yang diberikan
+    // icon definition
     final List<Map<String, dynamic>> menuItems = [
       {'label': 'Header', 'icon': Icons.web_rounded},
       {'label': 'PEB / PE', 'icon': Icons.inventory_2_rounded},
@@ -85,7 +85,6 @@ class _PkbeDetailsMenuPageState extends State<PkbeDetailsMenuPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Grid Menu 3 Kolom
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -93,7 +92,7 @@ class _PkbeDetailsMenuPageState extends State<PkbeDetailsMenuPage> {
                 crossAxisCount: 3,
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 20,
-                childAspectRatio: 0.75, // Ruang untuk label di luar kotak
+                childAspectRatio: 0.75,
               ),
               itemCount: menuItems.length,
               itemBuilder: (context, index) {

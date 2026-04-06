@@ -52,8 +52,8 @@ class PkbeHeaderDetailsPage extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
-          horizontal: 20, // kanan kiri tetap
-          vertical: 5,   // atas bawah dinaikin dikit
+          horizontal: 20,
+          vertical: 5,
         ),
         child: Column(
           children: [

@@ -25,7 +25,7 @@ class PebDetailsMenuPage extends StatefulWidget {
   State<PebDetailsMenuPage> createState() => _PebDetailsMenuPageState();
 }
 
-//buat dibawah yang dummy
+// buat dibawah yang dummy
 // class PebDetailsMenuPage extends StatefulWidget {
 //   const PebDetailsMenuPage({super.key});
 //
@@ -39,13 +39,13 @@ class _PebDetailsMenuPageState extends State<PebDetailsMenuPage> {
   @override
   void initState() {
     super.initState();
-    // ⛔ Sembunyikan navigation bar bawah (immersive mode)
+    // Sembunyikan navigation bar bawah (immersive mode)
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
   @override
   void dispose() {
-    // ✅ Kembalikan navigation bar saat keluar page
+    // Kembalikan navigation bar saat keluar page
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
@@ -164,7 +164,7 @@ class _PebDetailsMenuPageState extends State<PebDetailsMenuPage> {
               context,
               MaterialPageRoute(
                 builder: (context) => PebListDataBarangPage(
-                  car: widget.car, // 🔥 kirim CAR
+                  car: widget.car, // kirim CAR
                 ),
               ),
             );
@@ -197,7 +197,7 @@ class _PebDetailsMenuPageState extends State<PebDetailsMenuPage> {
               context,
               MaterialPageRoute(
                 builder: (context) => PebContainerDetailsPage(
-                  car: widget.car, // 🔥 kirim CAR
+                  car: widget.car,
                 ),
               ),
             );
@@ -208,7 +208,7 @@ class _PebDetailsMenuPageState extends State<PebDetailsMenuPage> {
               context,
               MaterialPageRoute(
                 builder: (context) => PebTransaksiEksporDetailsPage(
-                  car: widget.car, // 🔥 kirim CAR
+                  car: widget.car,
                 ),
               ),
             );
@@ -219,7 +219,7 @@ class _PebDetailsMenuPageState extends State<PebDetailsMenuPage> {
               context,
               MaterialPageRoute(
                 builder: (context) => PebResponDetailsPage(
-                  car: widget.car, // 🔥 kirim CAR
+                  car: widget.car,
                 ),
               ),
             );

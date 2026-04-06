@@ -33,7 +33,6 @@ class PebDetailsDataBarangRepository {
   //   return PebDetailsDataBarangResponseModel.fromJson(response);
   // }
 
-  // hapus ini - karena ini force user 175
   Future<PebDetailsDataBarangResponseModel?> fetchDetails({
     required String car,
     required String seriBrg,
@@ -47,7 +46,7 @@ class PebDetailsDataBarangRepository {
     final response = await _api.postRaw(
       'edeclaration/bc30/detail/barang',
       {
-        // "USER_ID": 175,
+        // "USER_ID": 175, // kalo mau dipake buat force user id
         "USER_ID": userId,
         "CAR": car,
         "SERIBRG": seriBrg,

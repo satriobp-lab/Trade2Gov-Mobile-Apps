@@ -213,7 +213,7 @@ class PebKemasanDetailsPage extends StatelessWidget {
     );
   }
 
-  // Helper widget untuk baris detail (Konsisten dengan Dokumen Page)
+  // Helper widget untuk baris detail
   Widget _buildDetailRow(String label, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,

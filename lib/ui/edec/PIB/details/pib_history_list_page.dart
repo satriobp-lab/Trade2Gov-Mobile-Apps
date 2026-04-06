@@ -31,7 +31,7 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
   @override
   void initState() {
     super.initState();
-    // ⛔ Sembunyikan navigation bar bawah (immersive mode)
+    // Sembunyikan navigation bar bawah (immersive mode)
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     _futurePib = PibHistoryListController.getPibHistory().then((value) {
       _allData = value;
@@ -43,7 +43,7 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
   @override
   void dispose() {
     _searchController.dispose();
-    // ✅ Kembalikan navigation bar saat keluar
+    // Kembalikan navigation bar saat keluar
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
@@ -128,7 +128,7 @@ class _PibHistoryListPageState extends State<PibHistoryListPage> {
           return Column(
             children: [
 
-              /// ✅ Search muncul hanya setelah load selesai
+              /// Search muncul hanya setelah load selesai
               _buildSearchBar(),
 
               Expanded(

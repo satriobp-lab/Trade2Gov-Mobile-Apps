@@ -46,8 +46,6 @@ class HomePage extends StatefulWidget {
 
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
-  //
-
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -62,7 +60,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   final GlobalKey _trackingKey = GlobalKey();
   final GlobalKey _informationKey = GlobalKey();
   final GlobalKey _edecKey = GlobalKey();
-  //
 
   //untuk menu Kurs / Tracking / Information
   int _activeMenu = -1;
@@ -336,7 +333,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             duration: const Duration(milliseconds: 120),
                             transform: Matrix4.translationValues(
                               0,
-                              isActive ? 4 : 0, // 👈 INI EFEK SLIDE KE BAWAH
+                              isActive ? 4 : 0,
                               0,
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
@@ -684,15 +681,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Future<void> _showWelcomeSnackbar() async {
-    if (AppCache.welcomeShown) return; // 👈 cek global flag
+    if (AppCache.welcomeShown) return;
 
     final storage = SecureStorageService();
     final name = await storage.getUserName();
 
     if (!mounted || name == null || name.isEmpty) return;
 
-    AppCache.welcomeShown = true; // 👈 set global flag
-
+    AppCache.welcomeShown = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -915,7 +911,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     bool showBelow = position.dy < screenHeight * 0.5;
     bool isBottomArea = position.dy > screenHeight * 0.75;
 
-    const double textSpacing = 30; // jarak aman antara highlight dan text
+    const double textSpacing = 30; // jarak antara highlight dan text
 
     if (showBelow) {
       // highlight di atas → text di bawah

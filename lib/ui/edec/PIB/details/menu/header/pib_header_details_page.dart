@@ -321,13 +321,13 @@ class _PibHeaderDetailsPageState
 
     String result = value.trim();
 
-    // ✅ Jika format ISO date (yyyy-mm-dd)
+    // format ISO date
     final dateRegex = RegExp(r'^\d{4}-\d{2}-\d{2}');
     if (dateRegex.hasMatch(result)) {
-      return result; // tampilkan apa adanya
+      return result;
     }
 
-    // 🔹 Hilangkan angka di depan seperti "4 - Udara"
+    // Hilangkan angka di depan seperti "4 - Udara"
     result = result.replaceFirst(
       RegExp(r'^\d{1,2}\s*-\s*'),
       '',

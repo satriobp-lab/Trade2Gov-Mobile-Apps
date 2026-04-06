@@ -322,7 +322,6 @@ class _PebListDataBarangPageState
                   },
                 ),
               ),
-
               _buildPagination(allData.length),
             ],
           );

@@ -18,14 +18,14 @@ class _PkbeHistoryListPageState extends State<PkbeHistoryListPage> {
   @override
   void initState() {
     super.initState();
-    // ⛔ Sembunyikan navigation bar bawah (immersive mode)
+    // Sembunyikan navigation bar bawah (immersive mode)
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-    // ✅ Kembalikan navigation bar saat keluar
+    // Kembalikan navigation bar saat keluar
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
@@ -62,7 +62,7 @@ class _PkbeHistoryListPageState extends State<PkbeHistoryListPage> {
       ),
       body: Column(
         children: [
-          // 🔍 Search Bar Section
+          // Search Bar Section
           Padding(
             padding: const EdgeInsets.fromLTRB(25, 20, 25, 10),
             child: Container(
@@ -107,7 +107,7 @@ class _PkbeHistoryListPageState extends State<PkbeHistoryListPage> {
             ),
           ),
 
-          // 📄 List of History
+          // List of History
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),

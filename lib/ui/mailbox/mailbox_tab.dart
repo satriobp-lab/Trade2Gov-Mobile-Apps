@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../utils/app_colors.dart';
+import '../../widgets/cool_loader.dart';
 import '../../data/controllers/mailbox_controller.dart';
 import '../../data/models/mailbox_response_model.dart';
 import 'mailboxmasuk/mailboxmasuk_page.dart';
@@ -103,7 +104,7 @@ class _MailboxTabState extends State<MailboxTab>
     if (!_isTabReady) {
       return const Scaffold(
         body: Center(
-          child: CircularProgressIndicator(),
+          child: CoolLoader(),
         ),
       );
     }
@@ -158,9 +159,7 @@ class _MailboxTabState extends State<MailboxTab>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircularProgressIndicator(
-            color: AppColors.customColorRed,
-          ),
+          const CoolLoader(),
           const SizedBox(height: 20),
           Text(
             "Loading mailbox...",

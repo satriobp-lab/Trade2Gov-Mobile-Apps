@@ -98,7 +98,7 @@ class _PebHeaderDetailsPageState
             );
           }
 
-          // 🔥 Kalau null / tidak ada data
+          // Kalau null / tidak ada data
           if (!snapshot.hasData || snapshot.data == null) {
             return _buildEmptyState();
           }
@@ -313,7 +313,7 @@ class _PebHeaderDetailsPageState
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
-            // 🔴 Circle Background
+            // Circle Background
             Container(
               padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(

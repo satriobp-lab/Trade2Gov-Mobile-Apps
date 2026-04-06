@@ -18,14 +18,14 @@ class _TpbHistoryListPageState extends State<TpbHistoryListPage> {
   @override
   void initState() {
     super.initState();
-    // ⛔ Sembunyikan navigation bar bawah (immersive mode)
+    // Sembunyikan navigation bar bawah (immersive mode)
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-    // ✅ Kembalikan navigation bar saat keluar
+    // Kembalikan navigation bar saat keluar
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
@@ -171,7 +171,7 @@ class _TpbHistoryListPageState extends State<TpbHistoryListPage> {
             ),
           ),
           // const Divider(height: 20, thickness: 0.8),
-          //divider beda warna
+          // divider beda warna
           Divider(
             height: 20,
             thickness: 0.8,

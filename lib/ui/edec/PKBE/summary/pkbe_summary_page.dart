@@ -30,7 +30,7 @@ class _PkbeSummaryPageState extends State<PkbeSummaryPage> {
   void initState() {
     super.initState();
 
-    // ⛔ sembunyikan navigation bar bawah
+    // sembunyikan navigation bar bawah
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.immersiveSticky,
     );
@@ -38,7 +38,7 @@ class _PkbeSummaryPageState extends State<PkbeSummaryPage> {
 
   @override
   void dispose() {
-    // ✅ balikin navigation bar saat keluar page
+    // balikin navigation bar saat keluar page
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
     );
@@ -51,7 +51,7 @@ class _PkbeSummaryPageState extends State<PkbeSummaryPage> {
     return masterLabels.map((label) {
       return {
         'label': label,
-        'value': backendMap[label] ?? '0', // 👈 DEFAULT 0
+        'value': backendMap[label] ?? '0', // DEFAULT 0
       };
     }).toList();
   }

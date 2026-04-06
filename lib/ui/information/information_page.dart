@@ -19,8 +19,6 @@ class InformationPage extends StatefulWidget {
 class _InformationPageState extends State<InformationPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-
-  // Daftar path gambar sesuai instruksi Anda
   final List<String> _infoImages = [
     'assets/images/information-pdeinternet.png',
     'assets/images/information-integrated.png',

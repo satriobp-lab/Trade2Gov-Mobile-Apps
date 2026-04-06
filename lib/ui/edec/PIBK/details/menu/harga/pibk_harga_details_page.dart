@@ -40,7 +40,6 @@ class _PibkHargaDetailsPageState
 
   @override
   Widget build(BuildContext context) {
-    // Data rincian harga sesuai permintaan
     final Map<String, String> hargaData = {
       'Valuta': 'USD - US Dollar',
       'NDPBM': 'Rp. 16.786',

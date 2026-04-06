@@ -25,13 +25,13 @@ class _TpbDetailsMenuPageState extends State<TpbDetailsMenuPage> {
   @override
   void initState() {
     super.initState();
-    // ⛔ Sembunyikan navigation bar bawah (immersive mode)
+    // Sembunyikan navigation bar bawah (immersive mode)
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
   @override
   void dispose() {
-    // ✅ Kembalikan navigation bar saat keluar page
+    // Kembalikan navigation bar saat keluar page
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }

@@ -54,7 +54,6 @@ class LandingPage extends StatelessWidget {
                     ),
                   ), //
                   const SizedBox(height: 30),
-                  // Menggunakan widget kustom untuk konsistensi animasi
                   AnimatedInverseButton(
                     onPressed: () {
                       Navigator.push(

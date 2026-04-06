@@ -108,7 +108,7 @@ class PibPungutanDetailsPage extends StatelessWidget {
             return const Center(child: Text("Tidak ada data"));
           }
 
-          // 🔥 mapping resmi
+          // final mapping
           final Map<String, String> pungutanCodeMap = {
             "1": "BEA MASUK",
             "10": "BMTP",
@@ -228,7 +228,7 @@ class PibPungutanDetailsPage extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: data.entries.map((entry) {
-                // Beri highlight warna hijau/merah jika ada nilainya (bukan '-')
+                // green or red highlight
                 bool hasValue = entry.value != '-';
 
                 return Padding(

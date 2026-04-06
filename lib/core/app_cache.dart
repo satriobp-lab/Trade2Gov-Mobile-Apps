@@ -12,8 +12,7 @@ class AppCache {
   static ProfileResponseModel? profile;
   static EdecResponseModel? edecDashboard;
 
-  static bool welcomeShown = false; // 👈 TAMBAHKAN INI
-  //PIB
+  static bool welcomeShown = false;
   static List<PibHistoryListResponseModel> pibHistoryList = [];
   static List<PebHistoryListResponseModel> pebHistoryList = [];
   static List<PibkHistoryListResponseModel> pibkHistoryList = [];

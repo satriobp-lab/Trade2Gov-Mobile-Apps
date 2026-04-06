@@ -52,7 +52,7 @@ class ApiService {
       return jsonDecode(response.body);
     }
 
-    // 🔥 kalau 500 anggap tidak ada data
+    // kalau 500 anggap tidak ada data
     if (response.statusCode == 500) {
       return null;
     }

@@ -182,7 +182,7 @@ class PebContainerDetailsPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 100, // Lebar label sedikit lebih kecil untuk Container page
+          width: 100,
           child: Text(
             label,
             style: GoogleFonts.roboto(

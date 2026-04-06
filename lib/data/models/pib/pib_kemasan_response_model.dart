@@ -23,19 +23,16 @@ class PibKemasanResponseModel {
     );
   }
 
-  /// Jumlah aman
   String get jumlahDisplay {
     if (jumlah == null) return '-';
     return jumlah.toString();
   }
 
-  /// Seri aman
   String get seriDisplay {
     if (seri == null || seri!.trim().isEmpty) return '-';
     return seri!;
   }
 
-  /// Ambil nama kemasan (kanan dari "PK - Package")
   String get namaKemasan {
     if (kode == null || kode!.trim().isEmpty) return '-';
 
@@ -49,7 +46,6 @@ class PibKemasanResponseModel {
     return kode!;
   }
 
-  /// Ambil jenis kemasan (kiri dari "PK - Package")
   String get jenisKemasan {
     if (kode == null || kode!.trim().isEmpty) return '-';
 
@@ -63,7 +59,6 @@ class PibKemasanResponseModel {
     return kode!;
   }
 
-  /// Merk diformat + null safe
   String get formattedMerk {
     if (merk == null || merk!.trim().isEmpty) return '-';
 

@@ -13,7 +13,7 @@ class PibkResponDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Mock data untuk Rincian Respon
+    // Mock dummy data untuk Rincian Respon
     final Map<String, String> responData = {
       'Kode': '-',
       'Tanggal': '14-01-2026',

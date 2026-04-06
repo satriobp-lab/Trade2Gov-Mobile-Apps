@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../utils/app_colors.dart';
-import 'package:url_launcher/url_launcher.dart'; // ✅ TAMBAHAN
+import 'package:url_launcher/url_launcher.dart';
 import '../../utils/app_box_decoration.dart';
 import '../../widgets/animated_inverse_red_button.dart';
 
@@ -30,7 +30,7 @@ class _CallCenterPageState extends State<CallCenterPage> {
           style: GoogleFonts.lato(
             color: AppColors.customColorRed,
             fontWeight: FontWeight.bold,
-            fontSize: width * 0.055, // responsive
+            fontSize: width * 0.055,
           ),
         ),
         bottom: PreferredSize(
@@ -94,12 +94,10 @@ class _CallCenterPageState extends State<CallCenterPage> {
               width: 45,
               height: 45,
               fit: BoxFit.contain,
-              // Jika path error saat running, pastikan pubspec.yaml sudah benar
             ),
 
             const SizedBox(width: 15),
 
-            // Text Content
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,13 +135,13 @@ class _CallCenterPageState extends State<CallCenterPage> {
   }
 
   // =======================
-// 🔗 OPEN EMAIL (GMAIL / EMAIL APP)
-// =======================
+  // OPEN EMAIL (GMAIL / EMAIL APP)
+  // =======================
   Future<void> _openEmail() async {
     final Uri emailUri = Uri(
       scheme: 'mailto',
       path: 'marketing@edi-indonesia.co.id',
-      // optional:
+      // query:
       query: 'subject=Need Help&body=Hello Team',
     );
 
@@ -154,11 +152,11 @@ class _CallCenterPageState extends State<CallCenterPage> {
     }
   }
 
-// =======================
-// 💬 OPEN WHATSAPP
-// =======================
+  // =======================
+  // 💬 OPEN WHATSAPP
+  // =======================
   Future<void> _openWhatsApp() async {
-    final String phone = '6282119933623'; // tanpa + dan spasi
+    final String phone = '6282119933623';
     final Uri waUri = Uri.parse(
       'https://wa.me/$phone?text=Halo%20Saya%20butuh%20bantuan',
     );
@@ -169,5 +167,4 @@ class _CallCenterPageState extends State<CallCenterPage> {
       debugPrint('Tidak bisa membuka WhatsApp');
     }
   }
-
 }

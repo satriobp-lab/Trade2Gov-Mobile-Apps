@@ -33,7 +33,6 @@ class _PibkDokumenDetailsPageState
 
   @override
   Widget build(BuildContext context) {
-    // Mock data untuk daftar dokumen PIB
     final List<Map<String, String>> dokumenList = [
       {
         'kode': '705',
