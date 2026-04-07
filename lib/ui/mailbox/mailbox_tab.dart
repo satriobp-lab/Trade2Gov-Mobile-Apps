@@ -25,6 +25,7 @@ class _MailboxTabState extends State<MailboxTab>
   List<MailboxResponseModel> terbacaList = [];
 
   bool _isLoading = true;
+  bool _isNoInternet = false;
   bool _isTabReady = false;
 
   @override
@@ -69,13 +70,16 @@ class _MailboxTabState extends State<MailboxTab>
         !terbaca.any((t) =>
         t.idUser == m.idUser &&
             t.message == m.message)).toList();
+
         _isLoading = false;
+        _isNoInternet = false;
       });
     } catch (e) {
       if (!mounted) return;
 
       setState(() {
         _isLoading = false;
+        _isNoInternet = true;
       });
     }
   }
@@ -105,6 +109,65 @@ class _MailboxTabState extends State<MailboxTab>
       return const Scaffold(
         body: Center(
           child: CoolLoader(),
+        ),
+      );
+    }
+
+    if (_isNoInternet) {
+      return Scaffold(
+        backgroundColor: AppColors.whiteColor,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.wifi_off,
+                size: 70,
+                color: AppColors.customColorRed,
+              ),
+              const SizedBox(height: 15),
+
+              Text(
+                "No Internet Connection",
+                style: GoogleFonts.lato(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.customColorGray,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                "Please check your internet connection",
+                style: GoogleFonts.lato(
+                  fontSize: 14,
+                  color: AppColors.customColorGray.withOpacity(0.7),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _isLoading = true;
+                    _isNoInternet = false;
+                  });
+
+                  _loadMailbox();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.whiteColor,
+                  foregroundColor: AppColors.customColorRed,
+                  side: const BorderSide(
+                    color: AppColors.customColorRed,
+                  ),
+                ),
+                child: const Text("Retry"),
+              ),
+            ],
+          ),
         ),
       );
     }

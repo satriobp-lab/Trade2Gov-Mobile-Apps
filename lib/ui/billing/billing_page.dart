@@ -5,14 +5,124 @@ import 'package:trade2gov/data/controllers/billing_controller.dart';
 import '../../utils/app_colors.dart';
 import 'billingdetails/billing_details_page.dart';
 import '../../utils/app_box_decoration.dart';
+import '../../widgets/cool_loader.dart';
 import '../../core/app_cache.dart';
 
-class BillingPage extends StatelessWidget {
+class BillingPage extends StatefulWidget {
   const BillingPage({super.key});
 
   @override
+  State<BillingPage> createState() => _BillingPageState();
+}
+
+class _BillingPageState extends State<BillingPage> {
+
+  bool isLoading = true;
+  bool isNoInternet = false;
+
+  List<BillingResponseModel> billingList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBilling();
+  }
+
+  Future<void> _loadBilling() async {
+    try {
+      final data = await BillingController.fetchBilling();
+
+      if (!mounted) return;
+
+      setState(() {
+        billingList = data;
+        AppCache.billingList = data;
+        isLoading = false;
+        isNoInternet = false;
+      });
+
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+        isNoInternet = true;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (isNoInternet) {
+      return Scaffold(
+        backgroundColor: AppColors.whiteColor,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+
+              const Icon(
+                Icons.wifi_off,
+                size: 70,
+                color: AppColors.customColorRed,
+              ),
+
+              const SizedBox(height: 15),
+
+              Text(
+                "No Internet Connection",
+                style: GoogleFonts.lato(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.customColorGray,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                "Please check your internet connection",
+                style: GoogleFonts.lato(
+                  fontSize: 14,
+                  color: AppColors.customColorGray.withOpacity(0.7),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    isLoading = true;
+                    isNoInternet = false;
+                  });
+
+                  _loadBilling();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.whiteColor,
+                  foregroundColor: AppColors.customColorRed,
+                  side: const BorderSide(
+                    color: AppColors.customColorRed,
+                  ),
+                ),
+                child: const Text("Retry"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final width = MediaQuery.of(context).size.width;
+
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CoolLoader(),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
@@ -40,7 +150,7 @@ class BillingPage extends StatelessWidget {
       ),
 
       /// DATA FROM API
-      body: AppCache.billingList.isEmpty
+      body: billingList.isEmpty
           ? Center(
         child: Text(
           'Tidak ada data billing',
@@ -49,10 +159,10 @@ class BillingPage extends StatelessWidget {
       )
           : ListView.separated(
         padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-        itemCount: AppCache.billingList.length,
+        itemCount: billingList.length,
         separatorBuilder: (_, __) => const SizedBox(height: 14),
         itemBuilder: (context, index) {
-          final item = AppCache.billingList[index];
+    final item = billingList[index];
 
           return _BillingCard(
             title: 'Tagihan Terbit',

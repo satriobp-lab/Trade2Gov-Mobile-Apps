@@ -39,6 +39,7 @@ class _EdecPageState extends State<EdecPage>
 
   Map<String, int> documentData = {};
   bool isLoading = true;
+  bool isNoInternet = false;
 
   late AnimationController _controller;
   late Animation<double> _animation;
@@ -82,19 +83,20 @@ class _EdecPageState extends State<EdecPage>
         documentData = {
           'PIB': data.pib,
           'PEB': data.peb,
-          // 'PKBE': data.pkbe,
           'PIBK': data.pibk,
+          // 'PKBE': data.pkbe,
           'TPB': 0,
         };
         isLoading = false;
+        isNoInternet = false;
       });
 
-      // START ANIMATION
       _controller.forward(from: 0);
 
     } catch (e) {
       setState(() {
         isLoading = false;
+        isNoInternet = true;
       });
     }
   }
@@ -130,6 +132,66 @@ class _EdecPageState extends State<EdecPage>
         .fold(0, (sum, item) => sum + item) *
         _animation.value)
         .toInt();
+
+    if (isNoInternet) {
+      return Scaffold(
+        backgroundColor: AppColors.whiteColor,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.wifi_off,
+                size: 70,
+                color: AppColors.customColorRed,
+              ),
+              const SizedBox(height: 15),
+              Text(
+                "No Internet Connection",
+                style: GoogleFonts.lato(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.customColorGray,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Please check your internet connection",
+                style: GoogleFonts.lato(
+                  fontSize: 14,
+                  color: AppColors.customColorGray.withOpacity(0.7),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    isLoading = true;
+                    isNoInternet = false;
+                  });
+                  _loadDashboard();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  elevation: 0,
+                  side: const BorderSide(color: AppColors.customColorRed),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  "Retry",
+                  style: GoogleFonts.roboto(
+                    color: AppColors.customColorRed,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.whiteColor,

@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_box_decoration.dart';
 import '../../core/app_cache.dart';
+import '../../widgets/cool_loader.dart';
+import '../../data/controllers/profile_controller.dart';
 import '../../data/models/profile_response_model.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -17,22 +19,84 @@ class _ProfilePageState extends State<ProfilePage> {
   ProfileResponseModel? profile;
 
   String appVersion = '-';
+  bool isLoading = true;
+  bool isNoInternet = false;
 
   @override
   void initState() {
     super.initState();
-    profile = AppCache.profile;
+
+    _loadProfile();
     _loadAppVersion();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isNoInternet) {
+      return Scaffold(
+        backgroundColor: AppColors.whiteColor,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.wifi_off,
+                size: 70,
+                color: AppColors.customColorRed,
+              ),
+              const SizedBox(height: 15),
+
+              Text(
+                "No Internet Connection",
+                style: GoogleFonts.lato(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.customColorGray,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                "Please check your internet connection",
+                style: GoogleFonts.lato(
+                  fontSize: 14,
+                  color: AppColors.customColorGray.withOpacity(0.7),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    isLoading = true;
+                    isNoInternet = false;
+                  });
+
+                  _loadProfile();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.whiteColor,
+                  foregroundColor: AppColors.customColorRed,
+                  side: BorderSide(
+                    color: AppColors.customColorRed,
+                  ),
+                ),
+                child: const Text("Retry"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final width = MediaQuery.of(context).size.width;
 
-    if (profile == null) {
+    if (isLoading) {
       return const Scaffold(
         body: Center(
-          child: CircularProgressIndicator(),
+          child: CoolLoader(),
         ),
       );
     }
@@ -304,5 +368,27 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       appVersion = info.version;
     });
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      profile = AppCache.profile;
+
+      // kalau cache kosong ambil dari API
+      if (profile == null) {
+        profile = await ProfileController.fetchProfile();
+        AppCache.profile = profile;
+      }
+
+      setState(() {
+        isLoading = false;
+        isNoInternet = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        isNoInternet = true;
+      });
+    }
   }
 }

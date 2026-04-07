@@ -69,8 +69,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   BillingResponseModel? _latestBilling;
   bool _isBillingLoading = true;
+  bool _isNoInternet = false;
 
-  //profile drawer
+  //profile drawer_loadLatestBilling
   ProfileResponseModel? _profile;
 
   DateTime? _lastBackPressed;
@@ -81,16 +82,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     _profile = AppCache.profile;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkFirstLaunchGuide();
-    });
-
     if (AppCache.billingList.isNotEmpty) {
       _latestBilling = AppCache.billingList.first;
       _isBillingLoading = false;
     } else {
-      _isBillingLoading = false;
+      _loadLatestBilling();
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkFirstLaunchGuide();
+    });
 
     _pulseController = AnimationController(
       vsync: this,
@@ -117,6 +118,60 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     final bool isActive = _activeProduct == 0;
+
+    if (_isNoInternet) {
+      return Scaffold(
+        backgroundColor: AppColors.whiteColor,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.wifi_off,
+                size: 70,
+                color: AppColors.customColorRed,
+              ),
+              const SizedBox(height: 15),
+              Text(
+                "No Internet Connection",
+                style: GoogleFonts.lato(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.customColorGray,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Please check your internet connection",
+                style: GoogleFonts.lato(
+                  fontSize: 14,
+                  color: AppColors.customColorGray.withOpacity(0.7),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _isBillingLoading = true;
+                    _isNoInternet = false;
+                  });
+                  _loadLatestBilling();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.whiteColor,
+                  foregroundColor: AppColors.customColorRed,
+                  side: const BorderSide(
+                    color: AppColors.customColorRed,
+                  ),
+                ),
+                child: const Text("Retry"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return WillPopScope(
         onWillPop: () async {
@@ -717,8 +772,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
       if (data.isNotEmpty) {
         setState(() {
-          _latestBilling = data.first; // karena sudah di-sort terbaru
+          _latestBilling = data.first;
           _isBillingLoading = false;
+          _isNoInternet = false;
         });
       } else {
         setState(() {
@@ -728,6 +784,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     } catch (e) {
       setState(() {
         _isBillingLoading = false;
+        _isNoInternet = true;
       });
     }
   }
