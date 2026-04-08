@@ -20,7 +20,8 @@ class PebListDataBarangRepository {
     final response = await _api.postRaw(
       'edeclaration/bc30/detail/barang_list',
       {
-        "USER_ID": userId,
+        "USER_ID": 175,
+        // "USER_ID": userId,
         "CAR": car,
       },
     );

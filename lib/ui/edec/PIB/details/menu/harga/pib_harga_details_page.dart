@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
-import '../../../../../../widgets/edec_loader.dart';
+import '../../../../../../widgets/network_edec_state_widget.dart';
 import '../../../../../../data/controllers/pib/pib_dataharga_controller.dart';
 import '../../../../../../data/models/pib/pib_dataharga_response_model.dart';
 
 class PibHargaDetailsPage extends StatelessWidget {
   final String car;
 
-  const PibHargaDetailsPage({
+  late final Future<PibDataHargaResponseModel> futureHarga;
+
+  PibHargaDetailsPage({
     super.key,
     required this.car,
-  });
+  }) {
+    futureHarga = PibDataHargaController.getDataHarga(car);
+  }
 
   String formatRupiah(num value) {
     return value
@@ -72,37 +76,36 @@ class PibHargaDetailsPage extends StatelessWidget {
           ),
         ),
       ),
+
       body: FutureBuilder<PibDataHargaResponseModel>(
-        future: PibDataHargaController.getDataHarga(car),
+        future: futureHarga,
         builder: (context, snapshot) {
+
+          /// LOADING
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const EdecLoader(),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Loading PIB Harga Details...',
-                    style: GoogleFonts.lato(
-                      color: AppColors.customColorRed,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+            return NetworkEdecStateWidget(
+              isLoading: true,
+              isNoInternet: false,
+              loadingText: "Loading PIB Harga Details...",
+              onRetry: () {},
+              child: const SizedBox(),
             );
           }
 
+          /// ERROR / NO INTERNET
           if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                "Gagal memuat data",
-                style: GoogleFonts.lato(
-                  color: AppColors.customColorRed,
-                ),
-              ),
+            return NetworkEdecStateWidget(
+              isLoading: false,
+              isNoInternet: true,
+              onRetry: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PibHargaDetailsPage(car: car),
+                  ),
+                );
+              },
+              child: const SizedBox(),
             );
           }
 
@@ -134,7 +137,7 @@ class PibHargaDetailsPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header Kotak
+
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Row(

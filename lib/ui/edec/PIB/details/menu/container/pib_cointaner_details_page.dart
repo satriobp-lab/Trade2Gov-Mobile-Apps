@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../widgets/edec_loader.dart';
+import '../../../../../../widgets/network_edec_state_widget.dart';
 import '../../../../../../utils/app_box_decoration.dart';
 import '../../../../../../data/controllers/pib/pib_container_controller.dart';
 import '../../../../../../data/models/pib/pib_container_response_model.dart';
@@ -80,28 +81,28 @@ class _PibContainerDetailsPageState
         future: _futureContainer,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const EdecLoader(),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Loading PIB Container...',
-                    style: GoogleFonts.lato(
-                      color: AppColors.customColorRed,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+            return NetworkEdecStateWidget(
+              isLoading: true,
+              isNoInternet: false,
+              loadingText: "Loading PIB Container...",
+              onRetry: () {},
+              child: const SizedBox(),
             );
           }
 
           if (snapshot.hasError) {
-            return Center(
-                child: Text("Error: ${snapshot.error}"));
+            return NetworkEdecStateWidget(
+              isLoading: false,
+              isNoInternet: true,
+              onRetry: () {
+                setState(() {
+                  _futureContainer =
+                      PibContainerController.getContainers(
+                          widget.car.replaceAll('-', ''));
+                });
+              },
+              child: const SizedBox(),
+            );
           }
 
           final containerList = snapshot.data ?? [];

@@ -5,6 +5,7 @@ import '../../../../../../widgets/edec_loader.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
 import 'detailsdatabarang/pib_details_data_barang_page.dart';
+import '../../../../../../widgets/network_edec_state_widget.dart';
 import '../../../../../../data/controllers/pib/pib_listdatabarang_controller.dart';
 import '../../../../../../data/models/pib/pib_listdatabarang_response_model.dart';
 
@@ -203,28 +204,27 @@ class _PibListDataBarangPageState extends State<PibListDataBarangPage> {
         builder: (context, snapshot) {
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const EdecLoader(),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Loading PIB List Data Barang...',
-                    style: GoogleFonts.lato(
-                      color: AppColors.customColorRed,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+            return NetworkEdecStateWidget(
+              isLoading: true,
+              isNoInternet: false,
+              loadingText: "Loading PIB List Data Barang...",
+              onRetry: () {},
+              child: const SizedBox(),
             );
           }
 
+
           if (snapshot.hasError) {
-            return Center(
-              child: Text("Error: ${snapshot.error}"),
+            return NetworkEdecStateWidget(
+              isLoading: false,
+              isNoInternet: true,
+              onRetry: () {
+                setState(() {
+                  _futureBarang =
+                      PibListDataBarangController.getListDataBarang(widget.car);
+                });
+              },
+              child: const SizedBox(),
             );
           }
 

@@ -5,6 +5,7 @@ import '../../../../../../widgets/edec_loader.dart';
 import '../../../../../../utils/app_box_decoration.dart';
 import '../../../../../../data/controllers/pib/pib_header_controller.dart';
 import '../../../../../../data/models/pib/pib_header_response_model.dart';
+import '../../../../../../widgets/network_edec_state_widget.dart';
 
 class PibHeaderDetailsPage extends StatefulWidget {
   final String car;
@@ -80,29 +81,27 @@ class _PibHeaderDetailsPageState
         future: _futureHeader,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const EdecLoader(),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Loading PIB Header Details...',
-                    style: GoogleFonts.lato(
-                      color: AppColors.customColorRed,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+            return NetworkEdecStateWidget(
+              isLoading: true,
+              isNoInternet: false,
+              loadingText: "Loading PIB Header Details...",
+              onRetry: () {},
+              child: const SizedBox(),
             );
           }
 
           if (snapshot.hasError) {
-            return Center(
-                child: Text(
-                    "Error: ${snapshot.error}"));
+            return NetworkEdecStateWidget(
+              isLoading: false,
+              isNoInternet: true,
+              onRetry: () {
+                setState(() {
+                  _futureHeader =
+                      PibHeaderController.getHeader(widget.car);
+                });
+              },
+              child: const SizedBox(),
+            );
           }
 
           final data = snapshot.data!;

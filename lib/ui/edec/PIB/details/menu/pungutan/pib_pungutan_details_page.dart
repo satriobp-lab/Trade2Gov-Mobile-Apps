@@ -2,21 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
-import '../../../../../../widgets/edec_loader.dart';
+import '../../../../../../widgets/network_edec_state_widget.dart';
 import 'package:trade2gov/data/controllers/pib/pib_pungutan_controller.dart';
 import 'package:trade2gov/data/models/pib/pib_pungutan_response_model.dart';
 
 class PibPungutanDetailsPage extends StatelessWidget {
   final String car;
 
-  const PibPungutanDetailsPage({
+  late final Future<PibPungutanResponseModel?> futurePungutan;
+
+  PibPungutanDetailsPage({
     super.key,
     required this.car,
-  });
+  }) {
+    futurePungutan =
+        PibPungutanController.getPungutan(car.replaceAll('-', ''));
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Struktur data pungutan
     final Map<String, String> pungutanCodeMap = {
       "1": "BEA MASUK",
       "10": "BMTP",
@@ -57,7 +61,7 @@ class PibPungutanDetailsPage extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '060000-000398-20251217-201062',
+              car,
               style: GoogleFonts.lato(
                 fontSize: 13,
                 color: AppColors.customColorGray,
@@ -74,32 +78,37 @@ class PibPungutanDetailsPage extends StatelessWidget {
           ),
         ),
       ),
+
       body: FutureBuilder<PibPungutanResponseModel?>(
-        future: PibPungutanController.getPungutan(car.replaceAll('-', '')),
+        future: futurePungutan,
         builder: (context, snapshot) {
 
+          /// LOADING
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const EdecLoader(),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Loading PIB Pungutan Details...',
-                    style: GoogleFonts.lato(
-                      color: AppColors.customColorRed,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+            return NetworkEdecStateWidget(
+              isLoading: true,
+              isNoInternet: false,
+              loadingText: "Loading PIB Pungutan Details...",
+              onRetry: () {},
+              child: const SizedBox(),
             );
           }
 
+          /// ERROR / NO INTERNET
           if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
+            return NetworkEdecStateWidget(
+              isLoading: false,
+              isNoInternet: true,
+              onRetry: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PibPungutanDetailsPage(car: car),
+                  ),
+                );
+              },
+              child: const SizedBox(),
+            );
           }
 
           final response = snapshot.data;
@@ -107,22 +116,6 @@ class PibPungutanDetailsPage extends StatelessWidget {
           if (response == null) {
             return const Center(child: Text("Tidak ada data"));
           }
-
-          // final mapping
-          final Map<String, String> pungutanCodeMap = {
-            "1": "BEA MASUK",
-            "10": "BMTP",
-            "11": "BMIM",
-            "12": "BMPB",
-            "2": "PPN",
-            "3": "PPNBM",
-            "4": "PPH",
-            "5": "CUKAI TEMBAKAU",
-            "6": "MMEA",
-            "7": "ETIL ALKOHOL",
-            "8": "BM KITE",
-            "9": "BMAD",
-          };
 
           final List<Map<String, dynamic>> pungutanList = [];
 
@@ -143,7 +136,6 @@ class PibPungutanDetailsPage extends StatelessWidget {
             });
           }
 
-          // TOTAL
           pungutanList.add({
             'title': 'TOTAL',
             'isTotal': true,
@@ -183,7 +175,6 @@ class PibPungutanDetailsPage extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: AppBox.primary().copyWith(
-        // Jika Total, berikan sedikit nuansa berbeda pada border
         border: isTotal
             ? Border.all(color: AppColors.customColorRed, width: 2)
             : null,
@@ -191,7 +182,7 @@ class PibPungutanDetailsPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header: Judul Pungutan
+
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -214,7 +205,6 @@ class PibPungutanDetailsPage extends StatelessWidget {
             ),
           ),
 
-          // Divider
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Container(
@@ -223,12 +213,11 @@ class PibPungutanDetailsPage extends StatelessWidget {
             ),
           ),
 
-          // Body: Rincian Pungutan
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: data.entries.map((entry) {
-                // green or red highlight
+
                 bool hasValue = entry.value != '-';
 
                 return Padding(
@@ -255,7 +244,9 @@ class PibPungutanDetailsPage extends StatelessWidget {
                             fontSize: 13,
                             fontWeight: hasValue ? FontWeight.bold : FontWeight.normal,
                             color: hasValue
-                                ? (isTotal ? AppColors.customColorRed : AppColors.customColorGreen)
+                                ? (isTotal
+                                ? AppColors.customColorRed
+                                : AppColors.customColorGreen)
                                 : AppColors.customColorGray,
                           ),
                         ),
