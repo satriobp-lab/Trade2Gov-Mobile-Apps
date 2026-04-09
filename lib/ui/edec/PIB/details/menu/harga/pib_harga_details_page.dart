@@ -109,6 +109,11 @@ class PibHargaDetailsPage extends StatelessWidget {
             );
           }
 
+          /// DATA KOSONG
+          if (!snapshot.hasData || snapshot.data == null) {
+            return _buildEmptyState();
+          }
+
           final data = snapshot.data!;
 
           final Map<String, String> hargaData = {
@@ -257,6 +262,55 @@ class PibHargaDetailsPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+            Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.customColorRed.withOpacity(0.08),
+              ),
+              child: const Icon(
+                Icons.price_change_rounded,
+                size: 70,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            Text(
+              "Data Harga Tidak Ditemukan",
+              style: GoogleFonts.lato(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.customColorRed,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              "Belum terdapat data harga\nuntuk CAR ini.\nSilakan periksa kembali data Anda.",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.roboto(
+                fontSize: 13,
+                color: AppColors.customColorGray,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

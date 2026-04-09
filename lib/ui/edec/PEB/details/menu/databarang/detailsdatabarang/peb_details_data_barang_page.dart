@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../../utils/app_colors.dart';
 import '../../../../../../../widgets/edec_loader.dart';
+import '../../../../../../../widgets/network_edec_state_widget.dart';
 import '../../../../../../../utils/app_box_decoration.dart';
 import '../../../../../../../data/controllers/peb/peb_detailsdatabarang_controller.dart';
 import '../../../../../../../data/models/peb/peb_detailsdatabarang_response_model.dart';
@@ -10,11 +11,18 @@ class PebDetailsDataBarangPage extends StatelessWidget {
   final String serialNumber;
   final String car;
 
-  const PebDetailsDataBarangPage({
+  late final Future<PebDetailsDataBarangResponseModel?> futureDetails;
+
+  PebDetailsDataBarangPage({
     super.key,
     required this.car,
     required this.serialNumber,
-  });
+  }) {
+    futureDetails = PebDetailsDataBarangController.getDetails(
+      car: car,
+      seriBrg: serialNumber,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,35 +67,37 @@ class PebDetailsDataBarangPage extends StatelessWidget {
           ),
         ),
       ),
-      body: FutureBuilder(
-        future: PebDetailsDataBarangController.getDetails(
-          car: car,
-          seriBrg: serialNumber,
-        ),
+      body: FutureBuilder<PebDetailsDataBarangResponseModel?>(
+        future: futureDetails,
         builder: (context, snapshot) {
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const EdecLoader(),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Loading PEB Data Barang Details...',
-                    style: GoogleFonts.lato(
-                      color: AppColors.customColorRed,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+            return NetworkEdecStateWidget(
+              isLoading: true,
+              isNoInternet: false,
+              loadingText: "Loading PEB Data Barang Details...",
+              onRetry: () {},
+              child: const SizedBox(),
             );
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
+            return NetworkEdecStateWidget(
+              isLoading: false,
+              isNoInternet: true,
+              onRetry: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PebDetailsDataBarangPage(
+                      car: car,
+                      serialNumber: serialNumber,
+                    ),
+                  ),
+                );
+              },
+              child: const SizedBox(),
+            );
           }
 
           final data = snapshot.data;

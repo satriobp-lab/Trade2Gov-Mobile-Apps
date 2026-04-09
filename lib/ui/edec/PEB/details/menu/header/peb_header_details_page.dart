@@ -5,6 +5,7 @@ import '../../../../../../widgets/edec_loader.dart';
 import '../../../../../../utils/app_box_decoration.dart';
 import '../../../../../../data/controllers/peb/peb_header_controller.dart';
 import '../../../../../../data/models/peb/peb_header_response_model.dart';
+import '../../../../../../widgets/network_edec_state_widget.dart';
 
 class PebHeaderDetailsPage extends StatefulWidget {
   final String car;
@@ -79,22 +80,26 @@ class _PebHeaderDetailsPageState
         builder: (context, snapshot) {
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const EdecLoader(),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Loading PEB Header Details...',
-                    style: GoogleFonts.lato(
-                      color: AppColors.customColorRed,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+            return NetworkEdecStateWidget(
+              isLoading: true,
+              isNoInternet: false,
+              loadingText: "Loading PEB Header Details...",
+              onRetry: () {},
+              child: const SizedBox(),
+            );
+          }
+
+          if (snapshot.hasError) {
+            return NetworkEdecStateWidget(
+              isLoading: false,
+              isNoInternet: true,
+              onRetry: () {
+                setState(() {
+                  _future =
+                      PebHeaderController.getPebHeader(widget.car);
+                });
+              },
+              child: const SizedBox(),
             );
           }
 

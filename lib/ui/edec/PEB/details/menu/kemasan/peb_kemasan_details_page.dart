@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
 import '../../../../../../widgets/edec_loader.dart';
+import '../../../../../../widgets/network_edec_state_widget.dart';
 import '../../../../../../data/controllers/peb/peb_kemasan_controller.dart';
 import '../../../../../../data/models/peb/peb_kemasan_response_model.dart';
 
@@ -63,59 +64,28 @@ class PebKemasanDetailsPage extends StatelessWidget {
         builder: (context, snapshot) {
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const EdecLoader(),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Loading PEB Kemasan Details...',
-                    style: GoogleFonts.lato(
-                      color: AppColors.customColorRed,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+            return NetworkEdecStateWidget(
+              isLoading: true,
+              isNoInternet: false,
+              loadingText: "Loading PEB Kemasan...",
+              onRetry: () {},
+              child: const SizedBox(),
             );
           }
 
           if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 70,
-                      color: AppColors.customColorRed,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      "Terjadi Kesalahan",
-                      style: GoogleFonts.lato(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.customColorRed,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      "Gagal memuat data kemasan.\nSilakan coba beberapa saat lagi.",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.roboto(
-                        fontSize: 13,
-                        color: AppColors.customColorGray,
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            return NetworkEdecStateWidget(
+              isLoading: false,
+              isNoInternet: true,
+              onRetry: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PebKemasanDetailsPage(car: car),
+                  ),
+                );
+              },
+              child: const SizedBox(),
             );
           }
 

@@ -12,8 +12,8 @@ class PibkListDataBarangRepository {
     final response = await _api.postRaw(
       'edeclaration/pibk/detail/barang_list',
       {
-        "USER_ID": userId,
-        // "USER_ID": 175,
+        // "USER_ID": userId,
+        "USER_ID": 175,
         "CAR": car,
       },
     );
