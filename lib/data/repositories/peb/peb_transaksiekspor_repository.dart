@@ -15,8 +15,8 @@ class PebTransaksiEksporRepository {
     final response = await _api.postRaw(
       'edeclaration/bc30/header/header',
       {
-        // "USER_ID": userId,
-        "USER_ID": 175, // 🔥 sementara force dulu
+        "USER_ID": userId,
+        // "USER_ID": 175, //  sementara force dulu
         "CAR": car,
       },
     );

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
 import '../../../../../../widgets/edec_loader.dart';
+import '../../../../../../widgets/network_edec_state_widget.dart';
 import 'package:trade2gov/data/controllers/pibk/pibk_harga_controller.dart';
 import 'package:trade2gov/data/models/pibk/pibk_harga_response_model.dart';
 
@@ -98,28 +99,30 @@ class _PibkHargaDetailsPageState
         future: _futureHarga,
         builder: (context, snapshot) {
 
+          /// LOADING
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const EdecLoader(),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Loading PIBK Harga Details...',
-                    style: GoogleFonts.lato(
-                      color: AppColors.customColorRed,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+            return NetworkEdecStateWidget(
+              isLoading: true,
+              isNoInternet: false,
+              loadingText: "Loading PIBK Data Harga Details...",
+              onRetry: () {},
+              child: const SizedBox(),
             );
           }
 
+          /// ERROR / NO INTERNET
           if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
+            return NetworkEdecStateWidget(
+              isLoading: false,
+              isNoInternet: true,
+              onRetry: () {
+                // Perbaikan: Refresh future tanpa navigasi ulang
+                setState(() {
+                  _futureHarga = PibkHargaController.getPibkHarga(widget.car);
+                });
+              },
+              child: const SizedBox(),
+            );
           }
 
           final data = snapshot.data;

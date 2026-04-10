@@ -86,7 +86,7 @@ class PibHargaDetailsPage extends StatelessWidget {
             return NetworkEdecStateWidget(
               isLoading: true,
               isNoInternet: false,
-              loadingText: "Loading PIB Harga Details...",
+              loadingText: "Loading PIB Data Harga Details...",
               onRetry: () {},
               child: const SizedBox(),
             );

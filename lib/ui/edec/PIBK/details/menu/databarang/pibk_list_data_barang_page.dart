@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
 import '../../../../../../widgets/edec_loader.dart';
+import '../../../../../../widgets/network_edec_state_widget.dart';
 import '../../../../../../widgets/animated_inverse_red_button.dart';
 import 'detailsdatabarang/pibk_details_data_barang_page.dart';
 import 'package:trade2gov/data/controllers/pibk/pibk_listdatabarang_controller.dart';
@@ -203,27 +204,28 @@ class _PibkListDataBarangPageState extends State<PibkListDataBarangPage> {
         builder: (context, snapshot) {
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const EdecLoader(),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Loading PIBK List Barang...',
-                    style: GoogleFonts.lato(
-                      color: AppColors.customColorRed,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+            return NetworkEdecStateWidget(
+              isLoading: true,
+              isNoInternet: false,
+              loadingText: "Loading PIBK List Data Barang...",
+              onRetry: () {},
+              child: const SizedBox(),
             );
           }
 
+
           if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
+            return NetworkEdecStateWidget(
+              isLoading: false,
+              isNoInternet: true,
+              onRetry: () {
+                setState(() {
+                  _futureBarang =
+                      PibkListDataBarangController.getListDataBarang(widget.car);
+                });
+              },
+              child: const SizedBox(),
+            );
           }
 
           final allData = snapshot.data ?? [];

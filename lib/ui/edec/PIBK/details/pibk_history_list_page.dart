@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_box_decoration.dart';
 import 'menu/pibk_details_menu_page.dart';
+import '../../../../widgets/network_edec_state_widget.dart';
 import '../../../../../../widgets/edec_loader.dart';
 import '../../../../widgets/animated_inverse_red_button.dart';
 import 'package:trade2gov/data/controllers/pibk/pibk_historylist_controller.dart';
@@ -92,27 +93,30 @@ class _PibkHistoryListPageState extends State<PibkHistoryListPage> {
         future: _futurePibk,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const EdecLoader(),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Loading PIBK history...',
-                    style: GoogleFonts.lato(
-                      color: AppColors.customColorRed,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+            return NetworkEdecStateWidget(
+              isLoading: true,
+              isNoInternet: false,
+              loadingText: "Loading PIBK history...",
+              onRetry: () {},
+              child: const SizedBox(),
             );
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
+            return NetworkEdecStateWidget(
+              isLoading: false,
+              isNoInternet: true,
+              onRetry: () {
+                setState(() {
+                  _futurePibk = PibkHistoryListController.getPibkHistory().then((value) {
+                    _allData = value;
+                    _filteredData = value;
+                    return value;
+                  });
+                });
+              },
+              child: const SizedBox(),
+            );
           }
 
           /// isi data dari snapshot

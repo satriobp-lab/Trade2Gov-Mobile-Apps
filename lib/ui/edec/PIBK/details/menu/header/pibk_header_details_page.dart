@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../utils/app_colors.dart';
 import '../../../../../../utils/app_box_decoration.dart';
 import '../../../../../../widgets/edec_loader.dart';
+import '../../../../../../widgets/network_edec_state_widget.dart';
 import 'package:trade2gov/data/controllers/pibk/pibk_header_controller.dart';
 import 'package:trade2gov/data/models/pibk/pibk_header_response_model.dart';
 
@@ -85,22 +86,26 @@ class _PibkHeaderDetailsPageState
         builder: (context, snapshot) {
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const EdecLoader(),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Loading PIBK Header Details...',
-                    style: GoogleFonts.lato(
-                      color: AppColors.customColorRed,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+            return NetworkEdecStateWidget(
+              isLoading: true,
+              isNoInternet: false,
+              loadingText: "Loading PIBK Header Details...",
+              onRetry: () {},
+              child: const SizedBox(),
+            );
+          }
+
+          if (snapshot.hasError) {
+            return NetworkEdecStateWidget(
+              isLoading: false,
+              isNoInternet: true,
+              onRetry: () {
+                setState(() {
+                  _futureHeader =
+                      PibkHeaderController.getHeader(widget.car);
+                });
+              },
+              child: const SizedBox(),
             );
           }
 
@@ -375,7 +380,7 @@ class _PibkHeaderDetailsPageState
       return result.toUpperCase();
     }
 
-    // ✅ Format Title Case
+    // Format Title Case
     final exceptions = ['PT', 'NPWP', 'API', 'CV'];
 
     result = result

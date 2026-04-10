@@ -268,7 +268,7 @@ class _PibkDetailsMenuPageState extends State<PibkDetailsMenuPage> {
             children: [
               ListTile(
                 leading: const Icon(Icons.picture_as_pdf),
-                title: const Text('Print PIB'),
+                title: const Text('Print PIBK'),
                 onTap: () {
                   Navigator.pop(context); // tutup bottom sheet
 
